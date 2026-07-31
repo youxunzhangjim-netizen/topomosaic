@@ -183,6 +183,8 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .tool-button.active, .mobile-toolbar button.active { border-color: rgba(139,233,255,.55); background: var(--accent-soft); color: var(--accent); }
 .tool-symbol { font-size: 1.1rem; text-align: center; }
 .palette-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.48rem; }
+.palette-grid.binary-mark-grid { grid-template-columns: 1fr; }
+.mobile-palette-grid.binary-mark-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .palette-button { position: relative; min-height: 48px; padding: 0.35rem; display: grid; place-items: center; }
 .palette-button .swatch {
   width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,.68);
@@ -195,6 +197,20 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .palette-button[data-tone="dark"] .swatch span { background: rgba(7,16,24,.72); color: #fff; }
 .palette-button .key { position: absolute; right: 5px; bottom: 3px; font-size: 0.64rem; color: var(--muted); }
 .palette-button.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(139,233,255,.3); }
+.binary-mark {
+  grid-template-columns: 34px 1fr;
+  gap: 0.55rem;
+  place-items: center start;
+  min-height: 60px;
+  text-align: left;
+}
+.binary-mark .swatch { width: 30px; height: 30px; border-radius: 8px; }
+.binary-mark-copy { display: grid; gap: 0.08rem; min-width: 0; }
+.binary-mark-copy strong { font-size: 0.78rem; line-height: 1.15; }
+.binary-mark-copy span { color: var(--muted); font-size: 0.66rem; line-height: 1.2; }
+.binary-mark[data-mark="empty"] .swatch { background: #f8fafc !important; }
+.binary-mark[data-mark="empty"] .swatch span { color: #071018; background: transparent; }
+.binary-mark[data-mark="paint"] .swatch { background: #05070a !important; }
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
 .danger-subtle { color: var(--danger); }
 .zoom-row { gap: 0.4rem; }
@@ -229,6 +245,18 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .clue-panel { padding-top: 0.75rem; }
 .clue-mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; margin-bottom: 0.85rem; }
 .clue-mode-tabs button { min-height: 40px; }
+.section-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.55rem; }
+.section-heading-row h3 { margin: 0; }
+.mini-badge {
+  flex: 0 0 auto;
+  border: 1px solid rgba(139,233,255,.18);
+  border-radius: 999px;
+  padding: 0.22rem 0.5rem;
+  color: var(--accent);
+  background: rgba(139,233,255,.06);
+  font-size: 0.63rem;
+  font-weight: 760;
+}
 .track-title-row { justify-content: space-between; gap: 0.5rem; }
 .track-title-row h2 { font-size: 1.3rem; margin-bottom: 0.25rem; }
 .track-stepper { display: grid; grid-template-columns: 44px 44px; gap: 0.3rem; }
@@ -243,6 +271,91 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .empty-clue { color: var(--muted); font-style: italic; }
 .track-status { margin-top: 0.7rem; min-height: 24px; color: var(--muted); font-size: 0.75rem; }
 .track-status.solved { color: var(--success); }
+.axis-clue-map {
+  display: grid;
+  gap: 0.62rem;
+  max-height: min(36vh, 340px);
+  overflow-y: auto;
+  padding-right: 0.12rem;
+}
+.clue-family-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(7,11,17,.34);
+}
+.clue-family-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.48rem 0.55rem;
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 820;
+}
+.clue-family-count { color: var(--faint); font-size: 0.63rem; font-weight: 720; white-space: nowrap; }
+.clue-line-row {
+  width: 100%;
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: minmax(42px, .48fr) minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.34rem 0.55rem;
+  border: 0;
+  border-top: 1px solid rgba(45,58,77,.72);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+.clue-line-row:hover:not(:disabled) { background: rgba(139,233,255,.08); }
+.clue-line-row.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.clue-line-label {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.clue-line-row.active .clue-line-label { color: var(--accent); }
+.clue-array {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.22rem;
+}
+.clue-run-token {
+  min-width: 24px;
+  min-height: 24px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.68);
+  border-radius: 6px;
+  padding: 0.08rem 0.34rem;
+  color: #071018;
+  font-size: 0.66rem;
+  font-weight: 880;
+  line-height: 1;
+}
+.clue-run-token[data-tone="dark"] { color: #fff; }
+.clue-run-token.binary {
+  background: #f8fafc;
+  color: #071018;
+  border-color: rgba(255,255,255,.9);
+}
+.clue-run-token.empty {
+  background: rgba(255,255,255,.05);
+  color: var(--muted);
+  border-color: rgba(156,171,192,.35);
+  border-style: dashed;
+}
 .track-strip { display: flex; flex-wrap: wrap; gap: 0.36rem; }
 .track-cell {
   width: 38px; min-width: 38px; min-height: 38px; padding: 0; position: relative; overflow: hidden; color: var(--text);
@@ -391,6 +504,11 @@ kbd { border: 1px solid var(--border-strong); background: var(--surface-3); colo
   .slice-controls .field { min-width: 120px; }
   .mobile-action-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .mobile-action-row button { font-size: .66rem; min-height: 38px; }
+  .mobile-palette-grid .binary-mark { grid-template-columns: 28px 1fr; min-height: 52px; padding: .32rem; }
+  .mobile-palette-grid .binary-mark .swatch { width: 26px; height: 26px; }
+  .mobile-palette-grid .binary-mark-copy span { display: none; }
+  .clue-line-row { grid-template-columns: minmax(36px, .42fr) minmax(0, 1fr); padding-inline: .46rem; }
+  .axis-clue-map { max-height: 30vh; }
 }
 
 

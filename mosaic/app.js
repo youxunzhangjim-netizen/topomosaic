@@ -29,21 +29,25 @@ const I18N = {
     switchToChinese: 'Switch language to Traditional Chinese', switchToEnglish: 'Switch language to English',
     languageCodeToChinese: '中文', languageCodeToEnglish: 'EN', languageChanged: 'Language switched to English.',
     puzzleConfiguration: 'Mosaic setup', dimensionTimeMode: 'Topology mode', puzzleTools: 'Mosaic mark tools',
-    colorPalette: 'Tile palette', zoomOut: 'Zoom out', zoomIn: 'Zoom in', puzzleProgress: 'Mosaic progress',
+    colorPalette: 'Tile palette', binaryPalette: 'Binary mark guide', zoomOut: 'Zoom out', zoomIn: 'Zoom in', puzzleProgress: 'Mosaic progress',
     viewMode: 'Mosaic view', board2dAria: 'Interactive topological mosaic', board3dAria: 'Interactive 3D lattice mosaic',
     sliceControls: 'Layer controls', previousSlice: 'Previous layer', nextSlice: 'Next layer', sliceLayer: 'Layer',
     timeNavigation: 'Time path', previousFrame: 'Previous frame', nextFrame: 'Next frame',
     currentTimeFrame: 'Current time frame', playAnimation: 'Play time', pauseAnimation: 'Pause time',
     cluesCellInfo: 'Path clues and tile focus', clueDimension: 'Clue axis', previousClueLine: 'Previous path',
-    nextClueLine: 'Next path', orderedColoredClues: 'Ordered path runs', selectedTrackCells: 'Tiles on selected path',
+    nextClueLine: 'Next path', orderedColoredClues: 'Ordered path runs', allAxisClues: 'All axis clue arrays', selectedTrackCells: 'Tiles on selected path',
     mobilePuzzleTools: 'Mobile mosaic controls', closeHelp: 'Close rules',
     tagline: 'Mosaics through paths, lattices, and time', lattice: 'Topology', puzzle: 'Mosaic',
     gameKind: 'Rule style', colorPicture: 'Color mosaic', blackWhitePicture: 'Binary mosaic',
-    tools: 'Marks', paint: 'Fill', empty: 'Blank', clear: 'Clear', inspect: 'Probe', move: 'Navigate / Orbit', moveShort: 'Move', palette: 'Tiles', actions: 'Solve',
+    tools: 'Marks', paint: 'Fill', empty: 'Blank', clear: 'Clear', inspect: 'Probe', move: 'Navigate / Orbit', moveShort: 'Move',
+    palette: 'Tiles', binaryMarks: 'Black / white marks', binaryFill: 'Black fill', binaryFillNote: 'Picture tile', binaryBlank: 'White blank', binaryBlankNote: 'Outside the picture', actions: 'Solve',
     undo: 'Undo', redo: 'Redo', hint: 'Hint', check: 'Verify', reset: 'Reset', view: 'View', fit: 'Fit',
     onionSkin: 'Time ghost', strictMode: 'Mistake guard', board: 'Mosaic', model: 'Lattice',
     slice: 'Layer', track: 'Path', plane: 'Layer axis', spatialClue: 'Space path', timeClue: 'Time path',
     direction: 'Path family', orderedTrack: 'Path strip', trackInstruction: 'Mark this path directly when the mosaic or lattice is hard to reach.',
+    axisClueMap: 'Axis clue map', currentFrameClues: (frame) => `Frame ${frame}`, timeAxisClues: 'Time paths',
+    pathCount: (count) => `${count} path${count === 1 ? '' : 's'}`,
+    selectAxisClue: (family, line, clues) => `Show ${family} ${line}: ${clues}`,
     selectedCell: 'Tile focus', state: 'Mark', memberships: 'Crossing paths', temporalRun: 'Time run',
     semanticPart: 'Revealed part', modelParts: 'Mosaic parts', whyThisLattice: 'Topology note', clues: 'Paths',
     howToPlay: 'Mosaic rules', sharedRule: 'Runs follow paths',
@@ -78,21 +82,26 @@ const I18N = {
     switchToChinese: '切換語言為繁體中文', switchToEnglish: '切換語言為 English',
     languageCodeToChinese: '中文', languageCodeToEnglish: 'EN', languageChanged: '語言已切換為繁體中文。',
     puzzleConfiguration: '馬賽克設定', dimensionTimeMode: '拓撲模式', puzzleTools: '馬賽克標記工具',
-    colorPalette: '圖塊色盤', zoomOut: '縮小', zoomIn: '放大', puzzleProgress: '馬賽克進度',
+    colorPalette: '圖塊色盤', binaryPalette: '黑白標記指南', zoomOut: '縮小', zoomIn: '放大', puzzleProgress: '馬賽克進度',
     viewMode: '馬賽克視圖', board2dAria: '互動式拓撲馬賽克', board3dAria: '互動式 3D 晶格馬賽克',
     sliceControls: '分層控制', previousSlice: '上一層', nextSlice: '下一層', sliceLayer: '分層',
     timeNavigation: '時間路徑', previousFrame: '上一幀', nextFrame: '下一幀',
     currentTimeFrame: '目前時間幀', playAnimation: '播放時間', pauseAnimation: '暫停時間',
     cluesCellInfo: '路徑線索與圖塊焦點', clueDimension: '線索軸', previousClueLine: '上一條路徑',
-    nextClueLine: '下一條路徑', orderedColoredClues: '有序路徑連段', selectedTrackCells: '所選路徑上的圖塊',
+    nextClueLine: '下一條路徑', orderedColoredClues: '有序路徑連段', allAxisClues: '所有軸向線索陣列', selectedTrackCells: '所選路徑上的圖塊',
     mobilePuzzleTools: '手機馬賽克控制', closeHelp: '關閉規則',
     tagline: '沿路徑、晶格與時間生成馬賽克', lattice: '拓撲', puzzle: '馬賽克',
     gameKind: '規則樣式', colorPicture: '彩色馬賽克', blackWhitePicture: '黑白馬賽克',
-    tools: '標記', paint: '填格', empty: '留白', clear: '清除', inspect: '探查', move: '導覽／旋轉', moveShort: '導覽', palette: '圖塊', actions: '解題',
+    tools: '標記', paint: '填格', empty: '留白', clear: '清除', inspect: '探查', move: '導覽／旋轉', moveShort: '導覽',
+    palette: '圖塊', binaryMarks: '黑白標記', binaryFill: '黑色填格', binaryFillNote: '圖像內格', binaryBlank: '白色留白', binaryBlankNote: '圖像外格', actions: '解題',
     undo: '復原', redo: '重做', hint: '提示', check: '驗證', reset: '重設', view: '視圖', fit: '置中',
     onionSkin: '時間殘影', strictMode: '錯誤防護', board: '馬賽克', model: '晶格', slice: '分層', track: '路徑',
     plane: '分層軸', spatialClue: '空間路徑', timeClue: '時間路徑', direction: '路徑族', orderedTrack: '路徑帶',
-    trackInstruction: '當馬賽克或晶格不易點選時，可直接在這條路徑上標記。', selectedCell: '圖塊焦點', state: '標記',
+    trackInstruction: '當馬賽克或晶格不易點選時，可直接在這條路徑上標記。', axisClueMap: '軸向線索圖',
+    currentFrameClues: (frame) => `第 ${frame} 幀`, timeAxisClues: '時間路徑',
+    pathCount: (count) => `${count} 條路徑`,
+    selectAxisClue: (family, line, clues) => `顯示 ${family} ${line}：${clues}`,
+    selectedCell: '圖塊焦點', state: '標記',
     memberships: '交會路徑', temporalRun: '時間連段', semanticPart: '揭示部件', modelParts: '馬賽克部件',
     whyThisLattice: '拓撲註記', clues: '路徑', howToPlay: '馬賽克規則', sharedRule: '連段沿路徑排列',
     pictureTypes: '黑白與彩色規則',
@@ -279,6 +288,10 @@ class TopoMosaicApp {
 
   paletteSymbol(entry) {
     return this.paletteInfo(entry).symbol;
+  }
+
+  paletteTone(entry) {
+    return entry?.key === 'black' || entry?.id >= 4 ? 'dark' : 'light';
   }
 
   partName(part) {
@@ -511,6 +524,7 @@ class TopoMosaicApp {
     this.renderTrackNavigation();
     this.renderSemanticLegend();
     this.renderClues();
+    this.renderClueMap();
     this.renderTrackStrip();
     this.renderCellCard();
     this.renderTimeline();
@@ -583,13 +597,40 @@ class TopoMosaicApp {
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    if (this.puzzle) this.renderPalette();
     this.updateRenderer();
   }
 
   renderPalette() {
+    $('#paletteTitle').textContent = this.t(this.gameplayMode === 'bw' ? 'binaryMarks' : 'palette');
+    if (this.gameplayMode === 'bw') this.selectedColor = 1;
+
+    const binaryButton = (tool, labelKey, noteKey, symbol, color) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `palette-button binary-mark${this.tool === tool ? ' active' : ''}`;
+      button.dataset.mark = tool;
+      button.setAttribute('aria-pressed', String(this.tool === tool));
+      button.setAttribute('aria-label', `${this.t(labelKey)}: ${this.t(noteKey)}`);
+      button.title = `${this.t(labelKey)}: ${this.t(noteKey)}`;
+      button.innerHTML = `<span class="swatch" style="background:${color}"><span>${symbol}</span></span><span class="binary-mark-copy"><strong>${this.t(labelKey)}</strong><span>${this.t(noteKey)}</span></span>`;
+      button.addEventListener('click', () => this.setTool(tool));
+      return button;
+    };
+
     const renderInto = (container) => {
       if (!container) return;
-      container.setAttribute('aria-label', this.t('colorPalette'));
+      const binary = this.gameplayMode === 'bw';
+      container.classList.toggle('binary-mark-grid', binary);
+      container.setAttribute('role', binary ? 'group' : 'radiogroup');
+      container.setAttribute('aria-label', this.t(binary ? 'binaryPalette' : 'colorPalette'));
+      if (binary) {
+        container.replaceChildren(
+          binaryButton('paint', 'binaryFill', 'binaryFillNote', '●', '#05070a'),
+          binaryButton('empty', 'binaryBlank', 'binaryBlankNote', '×', '#f8fafc'),
+        );
+        return;
+      }
       container.replaceChildren(...this.puzzle.palette.map((entry, index) => {
         const button = document.createElement('button');
         button.type = 'button'; button.className = `palette-button${entry.id === this.selectedColor ? ' active' : ''}`;
@@ -597,10 +638,10 @@ class TopoMosaicApp {
         button.title = this.paletteName(entry);
         button.setAttribute('aria-label', this.paletteName(entry));
         button.dataset.colorId = String(entry.id);
-        button.dataset.tone = entry.key === 'black' || entry.id >= 4 ? 'dark' : 'light';
+        button.dataset.tone = this.paletteTone(entry);
         button.innerHTML = `<span class="swatch" style="background:${this.colorForValue(entry.id)}"><span>${this.paletteSymbol(entry)}</span></span><span class="key">${index + 1}</span>`;
         button.addEventListener('click', () => {
-          this.selectedColor = entry.id; this.setTool('paint'); this.renderPalette();
+          this.selectedColor = entry.id; this.setTool('paint');
         });
         return button;
       }));
@@ -680,14 +721,18 @@ class TopoMosaicApp {
     if (this.selectedTrack) this.activeFamily = this.selectedTrack.family;
   }
 
-  setClueMode(mode) {
-    if (mode === 'time' && !this.puzzle.hasTime) return;
-    this.clueMode = mode;
+  syncClueModeTabs() {
     $$('#clueModeTabs [data-clue-mode]').forEach((button) => {
-      const active = button.dataset.clueMode === mode;
+      const active = button.dataset.clueMode === this.clueMode;
       button.classList.toggle('active', active);
       button.setAttribute('aria-selected', String(active));
     });
+  }
+
+  setClueMode(mode) {
+    if (mode === 'time' && !this.puzzle.hasTime) return;
+    this.clueMode = mode;
+    this.syncClueModeTabs();
     this.selectBestTrack(); this.updateAll();
   }
 
@@ -742,6 +787,7 @@ class TopoMosaicApp {
     this.renderProgress();
     this.renderTrackNavigation();
     this.renderClues();
+    this.renderClueMap();
     this.renderTrackStrip();
     this.renderCellCard();
     this.renderTimeline();
@@ -813,6 +859,92 @@ class TopoMosaicApp {
     const satisfied = this.selectedTrack ? trackIsSatisfied(this.selectedTrack, this.state) : false;
     $('#trackStatus').textContent = satisfied ? `✓ ${this.t('solved')}` : this.t('incomplete');
     $('#trackStatus').classList.toggle('solved', satisfied);
+  }
+
+  clueArrayText(clues) {
+    if (!clues.length) return '0';
+    if (this.gameplayMode === 'bw') return clues.map((run) => String(run.length)).join(' ');
+    return clues.map((run) => {
+      const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
+      return `${this.paletteSymbol(palette)}${run.length}`;
+    }).join(' ');
+  }
+
+  clueRunTokens(clues) {
+    if (!clues.length) {
+      const token = document.createElement('span');
+      token.className = 'clue-run-token empty';
+      token.textContent = '0';
+      return [token];
+    }
+    return clues.map((run) => {
+      const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
+      const token = document.createElement('span');
+      token.className = `clue-run-token${this.gameplayMode === 'bw' ? ' binary' : ''}`;
+      token.dataset.tone = this.gameplayMode === 'bw' ? 'light' : this.paletteTone(palette);
+      token.style.background = this.gameplayMode === 'bw' ? '#f8fafc' : this.colorForValue(run.colorId);
+      token.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
+      token.textContent = this.gameplayMode === 'bw' ? String(run.length) : `${this.paletteSymbol(palette)}${run.length}`;
+      return token;
+    });
+  }
+
+  renderClueMap() {
+    const container = $('#clueMap');
+    if (!container || !this.puzzle) return;
+    const timeMode = this.clueMode === 'time' && this.puzzle.hasTime;
+    $('#clueMapFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
+    const tracks = timeMode
+      ? this.puzzle.tracks.filter((track) => track.type === 'time')
+      : this.puzzle.tracks.filter((track) => track.type === 'space' && track.frame === this.currentFrame);
+    const groups = new Map();
+    for (const track of tracks) {
+      if (!groups.has(track.family)) groups.set(track.family, { label: this.trackFamilyLabel(track), tracks: [] });
+      groups.get(track.family).tracks.push(track);
+    }
+
+    container.replaceChildren(...[...groups.values()].map((group) => {
+      const familyCard = document.createElement('section');
+      familyCard.className = 'clue-family-card';
+      const heading = document.createElement('div');
+      heading.className = 'clue-family-heading';
+      const title = document.createElement('span');
+      title.textContent = group.label;
+      const count = document.createElement('span');
+      count.className = 'clue-family-count';
+      count.textContent = this.t('pathCount', group.tracks.length);
+      heading.replaceChildren(title, count);
+      familyCard.append(heading);
+
+      for (const track of group.tracks) {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = `clue-line-row${track.id === this.selectedTrack?.id ? ' active' : ''}`;
+        row.setAttribute('aria-label', this.t('selectAxisClue', group.label, track.lineLabel, this.clueArrayText(track.clues)));
+        const label = document.createElement('span');
+        label.className = 'clue-line-label';
+        label.textContent = track.lineLabel;
+        const array = document.createElement('span');
+        array.className = 'clue-array';
+        array.replaceChildren(...this.clueRunTokens(track.clues));
+        row.replaceChildren(label, array);
+        row.addEventListener('click', () => {
+          this.stopPlayback();
+          this.clueMode = track.type === 'time' ? 'time' : 'space';
+          this.syncClueModeTabs();
+          if (track.type === 'space') {
+            this.activeFamily = track.family;
+            if (!track.cells.includes(this.selectedCellIndex)) this.selectedCellIndex = track.cells[0];
+          } else {
+            this.selectedCellIndex = track.cells[0];
+          }
+          this.selectedTrack = track;
+          this.updateAll();
+        });
+        familyCard.append(row);
+      }
+      return familyCard;
+    }));
   }
 
   renderTrackStrip() {

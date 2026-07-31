@@ -104,8 +104,8 @@
           </div>
         </section>
 
-        <section>
-          <h2 data-i18n="palette">Tiles</h2>
+        <section id="paletteSection">
+          <h2 id="paletteTitle" data-i18n="palette">Tiles</h2>
           <div id="paletteButtons" class="palette-grid" role="radiogroup" aria-label="Tile palette" data-i18n-aria="colorPalette"></div>
         </section>
 
@@ -219,6 +219,14 @@
           </label>
           <div id="clueChips" class="clue-chips" aria-label="Ordered path runs" data-i18n-aria="orderedColoredClues"></div>
           <div id="trackStatus" class="track-status"></div>
+        </section>
+
+        <section class="axis-clue-map-section">
+          <div class="section-heading-row">
+            <h3 data-i18n="axisClueMap">Axis clue map</h3>
+            <span id="clueMapFrameLabel" class="mini-badge"></span>
+          </div>
+          <div id="clueMap" class="axis-clue-map" aria-label="All axis clue arrays" data-i18n-aria="allAxisClues"></div>
         </section>
 
         <section>
