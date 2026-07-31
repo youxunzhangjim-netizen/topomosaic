@@ -46,6 +46,13 @@ const I18N = {
     slice: 'Layer', track: 'Path', plane: 'Layer axis', spatialClue: 'Space path', timeClue: 'Time path',
     direction: 'Path family', orderedTrack: 'Path strip', trackInstruction: 'Mark this path directly when the mosaic or lattice is hard to reach.',
     axisClueMap: 'Axis clue map', currentFrameClues: (frame) => `Frame ${frame}`, timeAxisClues: 'Time paths',
+    clueGuideSquare: 'Square clues use the standard frame: top arrays are X columns; left arrays are Y rows.',
+    clueGuideHex: 'Hex clues use three edge bands. Q, R, and S are the three hex-axis path families.',
+    clueGuideTriangle: 'Triangle clues use three edge bands. A, B, and C are the three triangular weave families.',
+    clueGuide3d: '3D clues are path families through the lattice. Select any line to highlight that path in the model.',
+    clueGuideTime: 'Time clues read one tile through the frame sequence.',
+    clueGuideBinary: 'Each number is one connected black run; separate runs need white blanks.',
+    clueGuideColor: 'Colored digits are connected runs of that color; different colors may touch.',
     pathCount: (count) => `${count} path${count === 1 ? '' : 's'}`,
     selectAxisClue: (family, line, clues) => `Show ${family} ${line}: ${clues}`,
     selectedCell: 'Tile focus', state: 'Mark', memberships: 'Crossing paths', temporalRun: 'Time run',
@@ -99,6 +106,13 @@ const I18N = {
     plane: '分層軸', spatialClue: '空間路徑', timeClue: '時間路徑', direction: '路徑族', orderedTrack: '路徑帶',
     trackInstruction: '當馬賽克或晶格不易點選時，可直接在這條路徑上標記。', axisClueMap: '軸向線索圖',
     currentFrameClues: (frame) => `第 ${frame} 幀`, timeAxisClues: '時間路徑',
+    clueGuideSquare: '方格使用標準外框：上方陣列是 X 直行，左側陣列是 Y 橫列。',
+    clueGuideHex: '六角格使用三個邊帶。Q、R、S 是三個六角軸向路徑族。',
+    clueGuideTriangle: '三角格使用三個邊帶。A、B、C 是三個三角編織路徑族。',
+    clueGuide3d: '3D 線索是穿過晶格的路徑族；選一條即可在模型中高亮該路徑。',
+    clueGuideTime: '時間線索表示同一圖塊穿過各幀的連段。',
+    clueGuideBinary: '每個數字是一段連續黑色填格；不同段之間需要白色留白。',
+    clueGuideColor: '彩色數字表示該顏色的連續段；不同顏色可以相接。',
     pathCount: (count) => `${count} 條路徑`,
     selectAxisClue: (family, line, clues) => `顯示 ${family} ${line}：${clues}`,
     selectedCell: '圖塊焦點', state: '標記',
@@ -292,6 +306,27 @@ class TopoMosaicApp {
 
   paletteTone(entry) {
     return entry?.key === 'black' || entry?.id >= 4 ? 'dark' : 'light';
+  }
+
+  clueShapeClass(family = this.selectedTrack?.family) {
+    const kind = this.puzzle?.lattice.kind;
+    if (kind === 'hex' || family?.startsWith('hex-')) return 'shape-hex';
+    if (kind === 'triangle' || family?.startsWith('tri-')) return 'shape-triangle';
+    return 'shape-square';
+  }
+
+  clueGuideText() {
+    const timeGuide = this.clueMode === 'time' && this.puzzle?.hasTime;
+    const baseKey = timeGuide
+      ? 'clueGuideTime'
+      : this.puzzle?.dimension === 3
+        ? 'clueGuide3d'
+        : {
+          square: 'clueGuideSquare',
+          hex: 'clueGuideHex',
+          triangle: 'clueGuideTriangle',
+        }[this.puzzle?.lattice.kind] || 'clueGuideSquare';
+    return `${this.t(baseKey)} ${this.t(this.gameplayMode === 'bw' ? 'clueGuideBinary' : 'clueGuideColor')}`;
   }
 
   partName(part) {
@@ -864,7 +899,7 @@ class TopoMosaicApp {
       container.replaceChildren(...this.selectedTrack.clues.map((run) => {
         const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
         const chip = document.createElement('span');
-        chip.className = `clue-chip${this.gameplayMode === 'bw' ? ' binary-clue' : ' color-number-clue'}`;
+        chip.className = `clue-chip ${this.clueShapeClass()}${this.gameplayMode === 'bw' ? ' binary-clue' : ' color-number-clue'}`;
         if (this.gameplayMode === 'bw') {
           chip.style.background = '#f8fafc';
         } else {
@@ -892,17 +927,18 @@ class TopoMosaicApp {
     }).join(' ');
   }
 
-  clueRunTokens(clues) {
+  clueRunTokens(clues, family = null) {
+    const shapeClass = this.clueShapeClass(family);
     if (!clues.length) {
       const token = document.createElement('span');
-      token.className = 'clue-run-token empty';
+      token.className = `clue-run-token ${shapeClass} empty`;
       token.textContent = '0';
       return [token];
     }
     return clues.map((run) => {
       const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
       const token = document.createElement('span');
-      token.className = `clue-run-token${this.gameplayMode === 'bw' ? ' binary' : ' color-number-token'}`;
+      token.className = `clue-run-token ${shapeClass}${this.gameplayMode === 'bw' ? ' binary' : ' color-number-token'}`;
       if (this.gameplayMode === 'bw') {
         token.style.background = '#f8fafc';
       } else {
@@ -957,7 +993,7 @@ class TopoMosaicApp {
         label.textContent = track.lineLabel;
         const array = document.createElement('span');
         array.className = 'clue-array';
-        array.replaceChildren(...this.clueRunTokens(track.clues));
+        array.replaceChildren(...this.clueRunTokens(track.clues, track.family));
         row.replaceChildren(label, array);
         row.addEventListener('click', () => this.selectTrack(track));
         familyCard.append(row);
@@ -973,9 +1009,10 @@ class TopoMosaicApp {
     const { timeMode, groups } = this.clueMapTracks();
     section.hidden = !groups.length;
     $('#quickClueFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
+    $('#quickClueGuide').textContent = this.clueGuideText();
     container.replaceChildren(...groups.map((group) => {
       const family = document.createElement('section');
-      family.className = 'quick-clue-family';
+      family.className = `quick-clue-family ${this.clueShapeClass(group.family)}`;
       const title = document.createElement('div');
       title.className = 'quick-clue-family-title';
       const label = document.createElement('span');
@@ -997,7 +1034,7 @@ class TopoMosaicApp {
         lineLabel.textContent = track.lineLabel;
         const array = document.createElement('span');
         array.className = 'clue-array';
-        array.replaceChildren(...this.clueRunTokens(track.clues));
+        array.replaceChildren(...this.clueRunTokens(track.clues, track.family));
         row.replaceChildren(lineLabel, array);
         row.addEventListener('click', () => this.selectTrack(track));
         return row;

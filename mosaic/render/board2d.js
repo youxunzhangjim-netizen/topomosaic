@@ -243,7 +243,8 @@ export class Board2D {
     const gutter = this.axisClueGutters(width, height);
     const availableWidth = Math.max(90, width - gutter.left - gutter.right);
     const availableHeight = Math.max(90, height - gutter.top - gutter.bottom);
-    this.view.scale = Math.min(availableWidth / worldWidth, availableHeight / worldHeight);
+    const fittedScale = Math.min(availableWidth / worldWidth, availableHeight / worldHeight);
+    this.view.scale = Math.max(this.minimumReadableScale(width, height), fittedScale);
     const centerX = (this.worldBounds.minX + this.worldBounds.maxX) / 2;
     const centerY = (this.worldBounds.minY + this.worldBounds.maxY) / 2;
     this.view.offsetX = gutter.left + availableWidth / 2 - centerX * this.view.scale;
@@ -256,10 +257,17 @@ export class Board2D {
     const height = this.canvas.height / (this.pixelRatio || 1);
     const anchor = screenPoint || [width / 2, height / 2];
     const before = this.screenToWorld(anchor);
-    this.view.scale = Math.max(12, Math.min(220, this.view.scale * factor));
+    this.view.scale = Math.max(this.minimumReadableScale(width, height), Math.min(220, this.view.scale * factor));
     this.view.offsetX = anchor[0] - before[0] * this.view.scale;
     this.view.offsetY = anchor[1] - before[1] * this.view.scale;
     this.draw();
+  }
+
+  minimumReadableScale(width, height) {
+    const shortSide = Math.min(width, height);
+    const compactLimit = Math.max(15, Math.min(22, shortSide / 18));
+    const desktopLimit = this.puzzle?.lattice.kind === 'triangle' ? 22 : 20;
+    return shortSide < 560 ? compactLimit : desktopLimit;
   }
 
   worldToScreen([x, y]) {
@@ -396,9 +404,38 @@ export class Board2D {
     context.closePath();
   }
 
-  drawClueToken(context, token, x, y, width, height, active = false) {
-    context.save();
+  traceClueTokenShape(context, x, y, width, height, shape) {
+    if (shape === 'hex') {
+      context.beginPath();
+      context.moveTo(x + width * 0.24, y + height * 0.04);
+      context.lineTo(x + width * 0.76, y + height * 0.04);
+      context.lineTo(x + width, y + height * 0.5);
+      context.lineTo(x + width * 0.76, y + height * 0.96);
+      context.lineTo(x + width * 0.24, y + height * 0.96);
+      context.lineTo(x, y + height * 0.5);
+      context.closePath();
+      return;
+    }
+    if (shape === 'triangle') {
+      context.beginPath();
+      context.moveTo(x + width * 0.5, y + height * 0.04);
+      context.lineTo(x + width * 0.97, y + height * 0.94);
+      context.lineTo(x + width * 0.03, y + height * 0.94);
+      context.closePath();
+      return;
+    }
     this.roundedRect(context, x, y, width, height, 6);
+  }
+
+  clueTokenShape(family = '') {
+    if (this.puzzle?.lattice.kind === 'hex' || family.startsWith('hex-')) return 'hex';
+    if (this.puzzle?.lattice.kind === 'triangle' || family.startsWith('tri-')) return 'triangle';
+    return 'square';
+  }
+
+  drawClueToken(context, token, x, y, width, height, active = false, shape = 'square') {
+    context.save();
+    this.traceClueTokenShape(context, x, y, width, height, shape);
     context.fillStyle = token.background || token.color || 'rgba(11,15,22,0.8)';
     context.fill();
     context.lineWidth = active ? 2 : 1;
@@ -410,7 +447,8 @@ export class Board2D {
     context.font = `800 ${Math.max(10, Math.min(13, height * 0.58))}px Inter, system-ui, sans-serif`;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(token.text, x + width / 2, y + height / 2 + 0.5, width - 3);
+    const textY = shape === 'triangle' ? y + height * 0.62 : y + height / 2 + 0.5;
+    context.fillText(token.text, x + width / 2, textY, width - 3);
     context.restore();
   }
 
@@ -447,7 +485,7 @@ export class Board2D {
       const totalWidth = tokens.length * tokenWidth + (tokens.length - 1) * gap;
       const startX = boardLeft - 12 - totalWidth;
       tokens.forEach((token, index) => {
-        this.drawClueToken(context, token, startX + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, track.id === selectedId);
+        this.drawClueToken(context, token, startX + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, track.id === selectedId, 'square');
       });
     }
 
@@ -458,7 +496,7 @@ export class Board2D {
       const totalHeight = tokens.length * tokenHeight + (tokens.length - 1) * gap;
       const startY = boardTop - 12 - totalHeight;
       tokens.forEach((token, index) => {
-        this.drawClueToken(context, token, x, startY + index * (tokenHeight + gap), tokenWidth, tokenHeight, track.id === selectedId);
+        this.drawClueToken(context, token, x, startY + index * (tokenHeight + gap), tokenWidth, tokenHeight, track.id === selectedId, 'square');
       });
     }
 
@@ -517,26 +555,41 @@ export class Board2D {
       const side = this.clueFamilySide(group.family, groupIndex);
       const tracks = group.tracks;
       const axis = this.familyShortLabel(group.family);
+      const shape = this.clueTokenShape(group.family);
       const labelX = side === 'left' ? board.left - labelGap : side === 'right' ? board.right + labelGap : board.left - labelGap;
       const labelY = side === 'top' ? board.top - labelGap : side === 'bottom' ? board.bottom + labelGap : board.top - labelGap;
+      context.textAlign = 'center';
+      context.fillStyle = 'rgba(156,171,192,0.92)';
       context.fillText(axis, labelX, labelY);
 
-      tracks.forEach((track, trackIndex) => {
+      tracks.forEach((track) => {
         const tokens = this.clueTokens(track.clues);
         const active = track.id === selectedId;
+        const center = track.cells
+          .map((cellIndex) => this.worldToScreen(this.puzzle.lattice.cells[cellIndex].position))
+          .reduce((sum, point, index, points) => [
+            sum[0] + point[0] / points.length,
+            sum[1] + point[1] / points.length,
+          ], [0, 0]);
         if (side === 'left' || side === 'right') {
           const totalWidth = tokens.length * tokenWidth + (tokens.length - 1) * gap;
           const x = side === 'left' ? board.left - 12 - totalWidth : board.right + 12;
-          const y = board.top + ((trackIndex + 0.5) / tracks.length) * boardHeight - tokenHeight / 2;
+          const y = Math.max(board.top, Math.min(board.bottom - tokenHeight, center[1] - tokenHeight / 2));
+          context.textAlign = side === 'left' ? 'left' : 'right';
+          context.fillStyle = active ? '#8be9ff' : 'rgba(156,171,192,0.88)';
+          context.fillText(track.lineLabel, side === 'left' ? x + totalWidth + 5 : x - 5, y + tokenHeight / 2);
           tokens.forEach((token, index) => {
-            this.drawClueToken(context, token, x + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, active);
+            this.drawClueToken(context, token, x + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, active, shape);
           });
         } else {
           const totalHeight = tokens.length * tokenHeight + (tokens.length - 1) * gap;
-          const x = board.left + ((trackIndex + 0.5) / tracks.length) * boardWidth - tokenWidth / 2;
+          const x = Math.max(board.left, Math.min(board.right - tokenWidth, center[0] - tokenWidth / 2));
           const y = side === 'top' ? board.top - 12 - totalHeight : board.bottom + 12;
+          context.textAlign = 'center';
+          context.fillStyle = active ? '#8be9ff' : 'rgba(156,171,192,0.88)';
+          context.fillText(track.lineLabel, x + tokenWidth / 2, side === 'top' ? y + totalHeight + 8 : y - 8);
           tokens.forEach((token, index) => {
-            this.drawClueToken(context, token, x, y + index * (tokenHeight + gap), tokenWidth, tokenHeight, active);
+            this.drawClueToken(context, token, x, y + index * (tokenHeight + gap), tokenWidth, tokenHeight, active, shape);
           });
         }
       });
