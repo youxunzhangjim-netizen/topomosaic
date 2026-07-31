@@ -48,6 +48,24 @@ test('every 2D cell belongs to three spatial tracks on hex and triangle tilings'
   }
 });
 
+test('hex cells render as a connected tiling with only a fine stroke gap', () => {
+  const lattice = buildLattice('hex', { radius: 1 });
+  const center = lattice.cells.find((cell) => cell.coord.q === 0 && cell.coord.r === 0);
+  const neighbor = lattice.cells.find((cell) => cell.coord.q === 1 && cell.coord.r === 0);
+  const centerMaxX = Math.max(...center.polygon.map(([x]) => x));
+  const neighborMinX = Math.min(...neighbor.polygon.map(([x]) => x));
+  assert.ok(neighborMinX - centerMaxX < 0.08);
+});
+
+test('triangle pictures render in a roughly square display footprint', () => {
+  const lattice = buildLattice('triangle', { width: 5, height: 5 });
+  const points = lattice.cells.flatMap((cell) => cell.polygon);
+  const width = Math.max(...points.map(([x]) => x)) - Math.min(...points.map(([x]) => x));
+  const height = Math.max(...points.map(([, y]) => y)) - Math.min(...points.map(([, y]) => y));
+  const aspect = width / height;
+  assert.ok(aspect > 0.85 && aspect < 1.35, `triangle aspect ${aspect}`);
+});
+
 test('FCC, BCC, and HCP create finite cells and non-empty ordered tracks', () => {
   const specs = [
     ['fcc', { size: 3 }],

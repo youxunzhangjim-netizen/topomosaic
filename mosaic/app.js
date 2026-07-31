@@ -17,6 +17,15 @@ import { Board2D } from './render/board2d.js';
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
+const DISPLAY_MODE_STORAGE_KEY = 'topomosaic:displayMode';
+const MONO_SWATCHES = {
+  1: '#f5f7fa',
+  2: '#d6dce5',
+  3: '#aeb8c7',
+  4: '#7f8a9c',
+  5: '#4f5a6a',
+};
+
 const I18N = {
   en: {
     pageTitle: 'TopoMosaic — Spatial & Temporal Logic',
@@ -34,8 +43,8 @@ const I18N = {
     cluesCellInfo: 'Clues and cell information', clueDimension: 'Clue dimension', previousClueLine: 'Previous clue line',
     nextClueLine: 'Next clue line', orderedColoredClues: 'Ordered colored clues', selectedTrackCells: 'Cells on the selected clue track',
     mobilePuzzleTools: 'Mobile puzzle tools', closeHelp: 'Close help',
-    tagline: 'Spatial & temporal colored logic', lattice: 'Lattice', puzzle: 'Puzzle', tools: 'Tools', paint: 'Paint',
-    empty: 'Empty', clear: 'Clear', inspect: 'Inspect', move: 'Move / Orbit', moveShort: 'Move', palette: 'Palette', actions: 'Actions',
+    tagline: 'Spatial & temporal colored logic', lattice: 'Lattice', puzzle: 'Puzzle', displayStyle: 'Display', colorMode: 'Color', monoMode: 'Black & white',
+    tools: 'Tools', paint: 'Draw', empty: 'Empty', clear: 'Clean', inspect: 'Inspect', move: 'Move / Orbit', moveShort: 'Move', palette: 'Palette', actions: 'Actions',
     undo: 'Undo', redo: 'Redo', hint: 'Hint', check: 'Check', reset: 'Reset', view: 'View', fit: 'Fit',
     onionSkin: 'Previous-frame ghost', strictMode: 'Immediate mistake warning', board: 'Board', model: 'Model',
     slice: 'Slice', track: 'Track', plane: 'Plane', spatialClue: 'Spatial clue', timeClue: 'Time clue',
@@ -45,18 +54,19 @@ const I18N = {
     howToPlay: 'How to play', sharedRule: 'One rule across every geometry',
     sharedRuleText: 'Each clue is an ordered list of colored runs. [Yellow 2] [Blue 3] means two connected yellow cells followed later—or immediately, because the colors differ—by three connected blue cells. Runs of the same color require at least one empty cell between them.',
     timeRule: 'Time is a real clue direction', timeRuleText: 'In +Time modes, spatial clues apply inside each frame. Selecting one cell also reveals its ordered run through all frames. The timeline is therefore part of the logic, not a countdown.',
-    threeDViews: 'Three complementary 3D views', threeDViewsText: 'Model gives context, Slice exposes internal layers, and Track isolates exactly one clue line. Use Paint, Empty, or Clear for editing; use Move / Orbit when you want camera control.',
+    threeDViews: 'Three complementary 3D views', threeDViewsText: 'Model gives context, Slice exposes internal layers, and Track isolates exactly one clue line. Use Draw, Empty, or Clean for editing; use Move / Orbit when you want camera control.',
     shortcuts: 'Keyboard shortcuts', chooseColor: 'Choose color', markEmpty: 'Mark empty', clearCell: 'Clear to unknown',
     orbitCamera: 'Move / orbit', undoRedo: 'Undo / redo', changeFrame: 'Previous / next frame', startPlaying: 'Start playing',
     completed: 'Puzzle completed', replayAnimation: 'Replay animation', nextPuzzle: 'Next puzzle', close: 'Close',
     unknown: 'Unknown', noPart: 'None', hidden: 'Hidden', solved: 'Clue satisfied', incomplete: 'Clue incomplete',
     noRuns: 'No colored cells', given: 'Given', frame: 'Frame', temporal: 'Time', loading3d: 'Loading the 3D lattice viewer…',
     rendererFallback: 'The 3D library could not load. The ordered Track panel remains fully playable; serve the app online or install dependencies to restore the model viewer.',
-    hintApplied: 'One logically forced cell was filled.', noHint: 'No forced move is available from the current state.',
+    hintApplied: 'One logically forced cell was filled.', hintAppliedDetailed: (cell, value) => `Hint filled ${cell} as ${value}.`, noHint: 'No forced move is available from the current state.',
     contradiction: 'The current marks contradict at least one clue. Undo or clear a recent mark.',
     checkPerfect: 'Every decided cell is correct. Continue solving the remaining unknown cells.',
     checkWrong: (count) => `${count} decided cell${count === 1 ? '' : 's'} currently disagree with the solution.`,
     strictRejected: 'That value is not compatible with this puzzle in strict mode.', resetConfirm: 'Reset this puzzle and erase its saved progress?',
+    resetDone: 'Puzzle reset. Draw, Empty, and Clean are ready.',
     completeText: (title) => `${title} is complete. Explore the finished model, its parts, or replay its time evolution.`,
     difficultyStarter: 'Starter', difficultyEasy: 'Easy', difficultyMedium: 'Medium', difficultyAdvanced: 'Advanced',
     clueChipTitle: (color, length) => `${color}, run length ${length}`,
@@ -79,8 +89,8 @@ const I18N = {
     cluesCellInfo: '線索與格子資訊', clueDimension: '線索維度', previousClueLine: '上一條線索',
     nextClueLine: '下一條線索', orderedColoredClues: '有序彩色線索', selectedTrackCells: '目前線索路徑上的格子',
     mobilePuzzleTools: '手機謎題工具', closeHelp: '關閉說明',
-    tagline: '跨空間與時間的彩色邏輯', lattice: '晶格／鋪砌', puzzle: '關卡', tools: '工具', paint: '上色',
-    empty: '標記空格', clear: '清除', inspect: '檢視', move: '移動／旋轉', moveShort: '移動', palette: '色盤', actions: '操作',
+    tagline: '跨空間與時間的彩色邏輯', lattice: '晶格／鋪砌', puzzle: '關卡', displayStyle: '顯示', colorMode: '彩色', monoMode: '黑白',
+    tools: '工具', paint: '繪製', empty: '標記空格', clear: '清乾淨', inspect: '檢視', move: '移動／旋轉', moveShort: '移動', palette: '色盤', actions: '操作',
     undo: '復原', redo: '重做', hint: '提示', check: '檢查', reset: '重設', view: '視圖', fit: '置中',
     onionSkin: '顯示前一幀殘影', strictMode: '立即提示錯誤', board: '盤面', model: '模型', slice: '切片', track: '路徑',
     plane: '切面', spatialClue: '空間線索', timeClue: '時間線索', direction: '方向', orderedTrack: '有序路徑',
@@ -89,16 +99,17 @@ const I18N = {
     whyThisLattice: '此晶格的意義', clues: '線索', howToPlay: '玩法說明', sharedRule: '所有幾何共用一套規則',
     sharedRuleText: '每條線索都是依序排列的彩色連續區段。[黃 2] [藍 3] 表示兩格連續黃色，之後出現三格連續藍色；因顏色不同，兩段可以直接相接。相同顏色的兩段之間至少要有一格空白。',
     timeRule: '時間是真正的線索方向', timeRuleText: '在「+時間」模式，每一幀有自己的空間線索；選取一格後，也會看到它跨越所有時間幀的有序線索。因此時間軸參與推理，不是倒數計時。',
-    threeDViews: '三種互補的 3D 視圖', threeDViewsText: '模型視圖提供整體脈絡，切片視圖揭露內部，路徑視圖只保留一條線索線。上色、空格與清除負責編輯；需要控制鏡頭時切換到移動／旋轉。',
+    threeDViews: '三種互補的 3D 視圖', threeDViewsText: '模型視圖提供整體脈絡，切片視圖揭露內部，路徑視圖只保留一條線索線。繪製、空格與清乾淨負責編輯；需要控制鏡頭時切換到移動／旋轉。',
     shortcuts: '鍵盤快捷鍵', chooseColor: '選擇顏色', markEmpty: '標記空格', clearCell: '清回未知', orbitCamera: '移動／旋轉',
     undoRedo: '復原／重做', changeFrame: '上一幀／下一幀', startPlaying: '開始遊玩', completed: '關卡完成',
     replayAnimation: '重播動畫', nextPuzzle: '下一關', close: '關閉', unknown: '未知', noPart: '無', hidden: '尚未揭示',
     solved: '線索已完成', incomplete: '線索尚未完成', noRuns: '沒有著色格', given: '已知格', frame: '時間幀', temporal: '時間',
     loading3d: '正在載入 3D 晶格檢視器…', rendererFallback: '3D 函式庫載入失敗；右側的有序路徑仍可完整解題。以網路伺服器開啟或安裝相依套件後即可恢復模型視圖。',
-    hintApplied: '已填入一個由目前線索必然推出的格子。', noHint: '目前狀態沒有可直接推出的下一格。',
+    hintApplied: '已填入一個由目前線索必然推出的格子。', hintAppliedDetailed: (cell, value) => `提示已將 ${cell} 填為${value}。`, noHint: '目前狀態沒有可直接推出的下一格。',
     contradiction: '目前標記與至少一條線索矛盾，請復原或清除最近的操作。', checkPerfect: '所有已決定的格子都正確，請繼續完成其餘未知格。',
     checkWrong: (count) => `目前有 ${count} 個已決定格與答案不一致。`, strictRejected: '嚴格模式下不能填入與本關不相容的狀態。',
-    resetConfirm: '確定重設本關並刪除已儲存進度？', completeText: (title) => `「${title}」已完成。可探索完成模型、語意部件或重播時間演化。`,
+    resetConfirm: '確定重設本關並刪除已儲存進度？', resetDone: '關卡已重設。繪製、空格與清乾淨已可使用。',
+    completeText: (title) => `「${title}」已完成。可探索完成模型、語意部件或重播時間演化。`,
     difficultyStarter: '入門', difficultyEasy: '初級', difficultyMedium: '中級', difficultyAdvanced: '進階',
     clueChipTitle: (color, length) => `${color}，連續長度 ${length}`,
     trackCellLabel: (cell, frame, value, given) => `${cell}，第 ${frame} 幀，${value}${given ? '，已知格' : ''}`,
@@ -186,8 +197,10 @@ class TopoMosaicApp {
     this.tool = 'paint';
     this.clueMode = 'space';
     this.viewMode = 'board';
+    this.displayMode = localStorage.getItem(DISPLAY_MODE_STORAGE_KEY) === 'mono' ? 'mono' : 'color';
     this.selectedCellIndex = null;
     this.selectedTrack = null;
+    this.hintedVariableId = null;
     this.activeFamily = null;
     this.history = [];
     this.redoStack = [];
@@ -196,6 +209,7 @@ class TopoMosaicApp {
     this.playTimer = null;
     this.saveTimer = null;
     this.toastTimer = null;
+    this.hintTimer = null;
     this.rendererNoticeMode = null;
     this.board2d = new Board2D($('#board2d'), { onCellPointer: (cell, detail) => this.handleCellPointer(cell, detail) });
     this.board3d = null;
@@ -279,6 +293,7 @@ class TopoMosaicApp {
     $$('#modeSwitch [data-mode]').forEach((button) => button.addEventListener('click', () => this.setMode(button.dataset.mode)));
     $('#latticeSelect').addEventListener('change', () => this.populatePuzzleSelect());
     $('#puzzleSelect').addEventListener('change', () => this.loadPuzzle(findPuzzle($('#puzzleSelect').value)));
+    $('#displayModeSelect').addEventListener('change', (event) => this.setDisplayMode(event.target.value));
     $$('#toolGrid [data-tool]').forEach((button) => button.addEventListener('click', () => this.setTool(button.dataset.tool)));
     $$('[data-mobile-tool]').forEach((button) => button.addEventListener('click', () => this.setTool(button.dataset.mobileTool)));
     $('#mobileClueButton').addEventListener('click', () => document.body.classList.toggle('clue-open'));
@@ -293,6 +308,11 @@ class TopoMosaicApp {
     $('#hintButton').addEventListener('click', () => this.giveHint());
     $('#checkButton').addEventListener('click', () => this.checkPuzzle());
     $('#resetButton').addEventListener('click', () => this.resetPuzzle());
+    $('#mobileUndoButton').addEventListener('click', () => this.undo());
+    $('#mobileRedoButton').addEventListener('click', () => this.redo());
+    $('#mobileHintButton').addEventListener('click', () => this.giveHint());
+    $('#mobileCheckButton').addEventListener('click', () => this.checkPuzzle());
+    $('#mobileResetButton').addEventListener('click', () => this.resetPuzzle());
     $('#zoomInButton').addEventListener('click', () => this.activeRenderer()?.zoomBy(1.18));
     $('#zoomOutButton').addEventListener('click', () => this.activeRenderer()?.zoomBy(1 / 1.18));
     $('#fitViewButton').addEventListener('click', () => {
@@ -403,6 +423,7 @@ class TopoMosaicApp {
     this.tool = 'paint';
     this.clueMode = 'space';
     this.viewMode = puzzle.dimension === 2 ? 'board' : 'model';
+    this.clearHint({ redraw: false });
     this.history = [];
     this.redoStack = [];
     this.selectedCellIndex = Math.floor(puzzle.lattice.cells.length / 2);
@@ -503,7 +524,43 @@ class TopoMosaicApp {
     $$('[data-i18n-aria]').forEach((element) => { element.setAttribute('aria-label', this.t(element.dataset.i18nAria)); });
     $$('[data-i18n-title]').forEach((element) => { element.title = this.t(element.dataset.i18nTitle); });
     this.board3d?.renderer?.domElement?.setAttribute('aria-label', this.t('board3dAria'));
+    this.syncDisplayModeUi();
     this.renderPlaybackButton();
+  }
+
+  syncDisplayModeUi() {
+    $('#displayModeSelect').value = this.displayMode;
+    document.body.classList.toggle('display-mono', this.displayMode === 'mono');
+  }
+
+  setDisplayMode(mode) {
+    this.displayMode = mode === 'mono' ? 'mono' : 'color';
+    localStorage.setItem(DISPLAY_MODE_STORAGE_KEY, this.displayMode);
+    this.syncDisplayModeUi();
+    if (!this.puzzle) return;
+    this.renderPalette();
+    this.renderSemanticLegend();
+    this.renderClues();
+    this.renderTrackStrip();
+    this.updateRenderer();
+  }
+
+  clearHint({ redraw = true } = {}) {
+    clearTimeout(this.hintTimer);
+    this.hintTimer = null;
+    this.hintedVariableId = null;
+    if (redraw && this.puzzle) this.updateAll();
+  }
+
+  showHint(variableId) {
+    clearTimeout(this.hintTimer);
+    this.hintedVariableId = variableId;
+    this.updateAll();
+    this.hintTimer = setTimeout(() => {
+      this.hintedVariableId = null;
+      this.hintTimer = null;
+      this.updateAll();
+    }, 6500);
   }
 
   setTool(tool) {
@@ -523,20 +580,26 @@ class TopoMosaicApp {
   }
 
   renderPalette() {
-    const container = $('#paletteButtons');
-    container.replaceChildren(...this.puzzle.palette.map((entry, index) => {
-      const button = document.createElement('button');
-      button.type = 'button'; button.className = `palette-button${entry.id === this.selectedColor ? ' active' : ''}`;
-      button.setAttribute('role', 'radio'); button.setAttribute('aria-checked', String(entry.id === this.selectedColor));
-      button.title = this.paletteName(entry);
-      button.setAttribute('aria-label', this.paletteName(entry));
-      button.dataset.colorId = String(entry.id);
-      button.innerHTML = `<span class="swatch" style="background:${entry.color}"></span><span class="key">${index + 1}</span>`;
-      button.addEventListener('click', () => {
-        this.selectedColor = entry.id; this.setTool('paint'); this.renderPalette();
-      });
-      return button;
-    }));
+    const renderInto = (container) => {
+      if (!container) return;
+      container.setAttribute('aria-label', this.t('colorPalette'));
+      container.replaceChildren(...this.puzzle.palette.map((entry, index) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = `palette-button${entry.id === this.selectedColor ? ' active' : ''}`;
+        button.setAttribute('role', 'radio'); button.setAttribute('aria-checked', String(entry.id === this.selectedColor));
+        button.title = this.paletteName(entry);
+        button.setAttribute('aria-label', this.paletteName(entry));
+        button.dataset.colorId = String(entry.id);
+        button.dataset.tone = entry.id >= 4 ? 'dark' : 'light';
+        button.innerHTML = `<span class="swatch" style="background:${this.colorForValue(entry.id)}"><span>${this.paletteSymbol(entry)}</span></span><span class="key">${index + 1}</span>`;
+        button.addEventListener('click', () => {
+          this.selectedColor = entry.id; this.setTool('paint'); this.renderPalette();
+        });
+        return button;
+      }));
+    };
+    renderInto($('#paletteButtons'));
+    renderInto($('#mobilePaletteButtons'));
   }
 
   handleCellPointer(cellIndex, detail) {
@@ -545,10 +608,11 @@ class TopoMosaicApp {
     if (this.tool === 'inspect' || this.tool === 'orbit' || this.tool === 'move') return;
     let value = this.tool === 'paint' ? this.selectedColor : this.tool === 'empty' ? EMPTY : UNKNOWN;
     if (detail.button === 2) value = EMPTY;
+    this.clearHint({ redraw: false });
     this.applyVariable(variableIdFor(this.puzzle, this.currentFrame, cellIndex), value);
   }
 
-  applyVariable(variableId, value, { announce = false } = {}) {
+  applyVariable(variableId, value, { announce = false, keepHint = false } = {}) {
     if (this.puzzle.givens[variableId]) {
       this.toast(this.t('given')); return false;
     }
@@ -557,6 +621,7 @@ class TopoMosaicApp {
     }
     const previous = this.state[variableId];
     if (previous === value) return false;
+    if (!keepHint) this.clearHint({ redraw: false });
     this.state[variableId] = value;
     this.history.push({ variableId, previous, next: value });
     if (this.history.length > 500) this.history.shift();
@@ -574,6 +639,7 @@ class TopoMosaicApp {
 
   undo() {
     const change = this.history.pop(); if (!change) return;
+    this.clearHint({ redraw: false });
     this.state[change.variableId] = change.previous; this.redoStack.push(change);
     const decoded = decodeVariableId(this.puzzle, change.variableId);
     this.currentFrame = decoded.frame; this.selectedCellIndex = decoded.cellIndex; this.selectBestTrack();
@@ -582,6 +648,7 @@ class TopoMosaicApp {
 
   redo() {
     const change = this.redoStack.pop(); if (!change) return;
+    this.clearHint({ redraw: false });
     this.state[change.variableId] = change.next; this.history.push(change);
     const decoded = decodeVariableId(this.puzzle, change.variableId);
     this.currentFrame = decoded.frame; this.selectedCellIndex = decoded.cellIndex; this.selectBestTrack();
@@ -671,8 +738,12 @@ class TopoMosaicApp {
     this.renderTrackStrip();
     this.renderCellCard();
     this.renderTimeline();
-    $('#undoButton').disabled = !this.history.length;
-    $('#redoButton').disabled = !this.redoStack.length;
+    const undoDisabled = !this.history.length;
+    const redoDisabled = !this.redoStack.length;
+    $('#undoButton').disabled = undoDisabled;
+    $('#redoButton').disabled = redoDisabled;
+    $('#mobileUndoButton').disabled = undoDisabled;
+    $('#mobileRedoButton').disabled = redoDisabled;
   }
 
   activeRenderer() { return this.puzzle.dimension === 2 ? this.board2d : this.board3d; }
@@ -681,6 +752,7 @@ class TopoMosaicApp {
     const data = {
       state: this.state, frame: this.currentFrame, selectedCellIndex: this.selectedCellIndex,
       selectedTrack: this.selectedTrack, tool: this.tool, onionSkin: this.onionSkin, viewMode: this.viewMode,
+      displayMode: this.displayMode, hintedVariableId: this.hintedVariableId,
     };
     if (this.puzzle.dimension === 2) this.board2d.update(data);
     else this.board3d?.update(data);
@@ -720,7 +792,7 @@ class TopoMosaicApp {
       container.replaceChildren(...this.selectedTrack.clues.map((run) => {
         const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
         const chip = document.createElement('span'); chip.className = 'clue-chip';
-        chip.style.background = palette?.color || '#fff';
+        chip.style.background = this.colorForValue(run.colorId);
         chip.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
         chip.innerHTML = `<span class="clue-pattern" aria-hidden="true"></span><span>${this.paletteSymbol(palette)}${run.length}</span>`;
         return chip;
@@ -738,8 +810,9 @@ class TopoMosaicApp {
       const { frame, cellIndex } = decodeVariableId(this.puzzle, variableId);
       const value = this.state[variableId];
       const button = document.createElement('button'); button.type = 'button';
-      button.className = `track-cell${cellIndex === this.selectedCellIndex && frame === this.currentFrame ? ' selected' : ''}${this.puzzle.givens[variableId] ? ' given' : ''}`;
-      button.style.background = value > EMPTY ? this.colorForValue(value) : value === EMPTY ? '#17202c' : '#39465a';
+      const stateClass = value > EMPTY ? ' filled' : value === EMPTY ? ' empty' : ' unknown';
+      button.className = `track-cell${stateClass}${cellIndex === this.selectedCellIndex && frame === this.currentFrame ? ' selected' : ''}${this.puzzle.givens[variableId] ? ' given' : ''}${variableId === this.hintedVariableId ? ' hinted' : ''}`;
+      button.style.background = value > EMPTY ? this.colorForValue(value) : value === EMPTY ? '#17202c' : this.displayMode === 'mono' ? '#d8e0eb' : '#39465a';
       button.textContent = value === EMPTY ? '×' : value === UNKNOWN ? '?' : '';
       button.innerHTML += `<span class="cell-index">${this.selectedTrack.type === 'time' ? `t${frame + 1}` : offset + 1}</span>`;
       button.setAttribute('role', 'listitem');
@@ -754,6 +827,7 @@ class TopoMosaicApp {
         this.currentFrame = frame; this.selectedCellIndex = cellIndex; this.selectBestTrack();
         if (!['inspect', 'orbit', 'move'].includes(this.tool)) {
           const next = this.tool === 'paint' ? this.selectedColor : this.tool === 'empty' ? EMPTY : UNKNOWN;
+          this.clearHint({ redraw: false });
           this.applyVariable(variableId, next, { announce: true });
         } else this.updateAll();
       });
@@ -836,10 +910,14 @@ class TopoMosaicApp {
     return entry ? this.paletteName(entry) : String(value);
   }
 
-  colorForValue(value) { return this.puzzle.palette.find((entry) => entry.id === value)?.color || '#ffffff'; }
+  colorForValue(value) {
+    if (this.displayMode === 'mono') return MONO_SWATCHES[value] || '#f7f9fc';
+    return this.puzzle.palette.find((entry) => entry.id === value)?.color || '#ffffff';
+  }
 
   async giveHint() {
     this.stopPlayback();
+    this.clearHint({ redraw: false });
     const result = await this.askSolver('hint');
     if (!result.ok) { this.toast(this.t('contradiction'), 'error'); return; }
     if (!result.moves.length) { this.toast(this.t('noHint')); return; }
@@ -847,8 +925,10 @@ class TopoMosaicApp {
     const move = result.moves.find((entry) => preferredVariables.has(entry.variableId))
       || result.moves.find((entry) => decodeVariableId(this.puzzle, entry.variableId).frame === this.currentFrame)
       || result.moves[0];
-    this.applyVariable(move.variableId, move.value);
-    this.toast(this.t('hintApplied'), 'success');
+    this.applyVariable(move.variableId, move.value, { announce: true, keepHint: true });
+    this.showHint(move.variableId);
+    const decoded = decodeVariableId(this.puzzle, move.variableId);
+    this.toast(this.t('hintAppliedDetailed', this.describeCell(decoded.cellIndex), this.describeValue(move.value)), 'success');
   }
 
   async checkPuzzle() {
@@ -887,8 +967,27 @@ class TopoMosaicApp {
 
   resetPuzzle() {
     if (!confirm(this.t('resetConfirm'))) return;
-    clearProgress(this.puzzle); this.state = createInitialState(this.puzzle); this.history = []; this.redoStack = [];
-    this.currentFrame = 0; this.selectedCellIndex = Math.floor(this.puzzle.lattice.cells.length / 2); this.selectBestTrack(); this.updateAll();
+    this.stopPlayback();
+    this.clearHint({ redraw: false });
+    clearProgress(this.puzzle);
+    this.state = createInitialState(this.puzzle);
+    this.history = [];
+    this.redoStack = [];
+    this.currentFrame = 0;
+    this.selectedColor = this.puzzle.palette[0]?.id || 1;
+    this.clueMode = 'space';
+    this.viewMode = this.puzzle.dimension === 2 ? 'board' : 'model';
+    this.activeFamily = this.puzzle.lattice.tracks[0]?.family || null;
+    this.selectedCellIndex = Math.floor(this.puzzle.lattice.cells.length / 2);
+    this.selectBestTrack();
+    this.setTool('paint');
+    this.setClueMode('space');
+    this.setViewMode(this.viewMode);
+    this.renderPalette();
+    if (this.puzzle.dimension === 2) this.board2d.fitToView();
+    else this.board3d?.resetCamera();
+    this.updateAll();
+    this.toast(this.t('resetDone'), 'success');
   }
 
   showCompletion() {

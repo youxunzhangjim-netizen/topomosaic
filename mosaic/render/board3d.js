@@ -9,7 +9,20 @@ function dot(left, right) {
   return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
 }
 
-function colorFor(puzzle, value) {
+const MONO_COLORS = {
+  1: '#f5f7fa',
+  2: '#d6dce5',
+  3: '#aeb8c7',
+  4: '#7f8a9c',
+  5: '#4f5a6a',
+};
+
+function colorFor(puzzle, value, displayMode = 'color') {
+  if (displayMode === 'mono') {
+    if (value === UNKNOWN) return '#5e6c82';
+    if (value === EMPTY) return '#10151e';
+    return MONO_COLORS[value] || '#f7f9fc';
+  }
   if (value === UNKNOWN) return '#5e6c82';
   if (value === EMPTY) return '#17202c';
   return puzzle.palette.find((entry) => entry.id === value)?.color || '#ffffff';
@@ -36,6 +49,8 @@ export class Board3D {
     this.tool = 'paint';
     this.viewMode = 'model';
     this.onionSkin = true;
+    this.displayMode = 'color';
+    this.hintedVariableId = null;
     this.meshes = [];
     this.outlines = [];
     this.geometryCache = new Map();
@@ -122,11 +137,11 @@ export class Board3D {
   }
 
   materialFor({ value, ghost = false, muted = false }) {
-    const key = `${value}:${ghost ? 1 : 0}:${muted ? 1 : 0}`;
+    const key = `${this.displayMode}:${value}:${ghost ? 1 : 0}:${muted ? 1 : 0}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
     const opacity = ghost ? 0.15 : value === UNKNOWN ? (muted ? 0.12 : 0.44) : (muted ? 0.3 : 0.94);
     const material = new THREE.MeshStandardMaterial({
-      color: colorFor(this.puzzle, value),
+      color: colorFor(this.puzzle, value, this.displayMode),
       roughness: 0.62,
       metalness: this.puzzle.lattice.kind === 'sc' ? 0.02 : 0.12,
       transparent: opacity < 1,
@@ -167,6 +182,7 @@ export class Board3D {
     this.frame = 0;
     this.selectedCellIndex = null;
     this.selectedTrack = null;
+    this.hintedVariableId = null;
     this.viewMode = 'model';
     this.sliceFamilyId = puzzle.lattice.sliceFamilies[0]?.id || null;
     this.sliceIndex = 0;
@@ -245,7 +261,7 @@ export class Board3D {
     this.renderer.domElement.style.cursor = orbit ? 'grab' : 'crosshair';
   }
 
-  update({ state, frame, selectedCellIndex, selectedTrack, tool, onionSkin, viewMode } = {}) {
+  update({ state, frame, selectedCellIndex, selectedTrack, tool, onionSkin, viewMode, displayMode, hintedVariableId } = {}) {
     if (state) this.state = state;
     if (frame != null) this.frame = frame;
     if (selectedCellIndex !== undefined) this.selectedCellIndex = selectedCellIndex;
@@ -253,6 +269,8 @@ export class Board3D {
     if (tool) this.setTool(tool);
     if (onionSkin != null) this.onionSkin = onionSkin;
     if (viewMode) this.viewMode = viewMode;
+    if (displayMode) this.displayMode = displayMode;
+    if (hintedVariableId !== undefined) this.hintedVariableId = hintedVariableId;
     this.updateVisibility();
   }
 
@@ -291,6 +309,7 @@ export class Board3D {
       const outline = this.outlines[cell.index];
       const variableId = variableIdFor(this.puzzle, this.frame, cell.index);
       const value = this.state[variableId];
+      const hinted = variableId === this.hintedVariableId;
       const inSlice = this.cellIsInSlice(cell);
       const onTrack = this.cellIsOnTrack(cell.index);
       const visibleByMode = this.viewMode === 'model'
@@ -317,7 +336,10 @@ export class Board3D {
       mesh.material = this.materialFor({ value: displayValue, ghost, muted });
       mesh.renderOrder = ghost ? 0 : 1;
 
-      if (isSelected) {
+      if (hinted) {
+        outline.material = this.lineMaterial(0xf2c94c, 1);
+        outline.scale.setScalar(1.075);
+      } else if (isSelected) {
         outline.material = this.lineMaterial(0xffffff, 1);
         outline.scale.setScalar(1.045);
       } else if (activeCells?.has(cell.index)) {

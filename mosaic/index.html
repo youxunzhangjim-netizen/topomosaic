@@ -71,6 +71,13 @@
         <span data-i18n="puzzle">Puzzle</span>
         <select id="puzzleSelect"></select>
       </label>
+      <label class="field display-field">
+        <span data-i18n="displayStyle">Display</span>
+        <select id="displayModeSelect">
+          <option value="color" data-i18n="colorMode">Color</option>
+          <option value="mono" data-i18n="monoMode">Black & white</option>
+        </select>
+      </label>
       <div class="difficulty-badge" id="difficultyBadge">Starter</div>
     </section>
 
@@ -80,13 +87,13 @@
           <h2 data-i18n="tools">Tools</h2>
           <div class="tool-grid" id="toolGrid">
             <button type="button" data-tool="paint" class="tool-button active">
-              <span class="tool-symbol" aria-hidden="true">●</span><span data-i18n="paint">Paint</span>
+              <span class="tool-symbol" aria-hidden="true">●</span><span data-i18n="paint">Draw</span>
             </button>
             <button type="button" data-tool="empty" class="tool-button">
               <span class="tool-symbol" aria-hidden="true">×</span><span data-i18n="empty">Empty</span>
             </button>
             <button type="button" data-tool="clear" class="tool-button">
-              <span class="tool-symbol" aria-hidden="true">○</span><span data-i18n="clear">Clear</span>
+              <span class="tool-symbol" aria-hidden="true">○</span><span data-i18n="clear">Clean</span>
             </button>
             <button type="button" data-tool="inspect" class="tool-button">
               <span class="tool-symbol" aria-hidden="true">⌖</span><span data-i18n="inspect">Inspect</span>
@@ -157,6 +164,17 @@
           <div id="rendererNotice" class="renderer-notice" hidden role="status"></div>
           <div class="viewport-badge" id="viewportBadge">Frame 1</div>
         </div>
+
+        <section class="mobile-control-shelf" aria-label="Mobile puzzle tools" data-i18n-aria="mobilePuzzleTools">
+          <div id="mobilePaletteButtons" class="mobile-palette-grid" role="radiogroup" aria-label="Color palette" data-i18n-aria="colorPalette"></div>
+          <div class="mobile-action-row">
+            <button type="button" id="mobileUndoButton" data-i18n="undo">Undo</button>
+            <button type="button" id="mobileRedoButton" data-i18n="redo">Redo</button>
+            <button type="button" id="mobileHintButton" data-i18n="hint">Hint</button>
+            <button type="button" id="mobileCheckButton" data-i18n="check">Check</button>
+            <button type="button" id="mobileResetButton" class="danger-subtle" data-i18n="reset">Reset</button>
+          </div>
+        </section>
 
         <section id="sliceControls" class="slice-controls" hidden aria-label="3D slice controls" data-i18n-aria="sliceControls">
           <label class="field compact">
@@ -235,9 +253,9 @@
     </main>
 
     <div class="mobile-toolbar" aria-label="Mobile puzzle tools" data-i18n-aria="mobilePuzzleTools">
-      <button type="button" data-mobile-tool="paint" class="active"><span aria-hidden="true">●</span><span data-i18n="paint">Paint</span></button>
+      <button type="button" data-mobile-tool="paint" class="active"><span aria-hidden="true">●</span><span data-i18n="paint">Draw</span></button>
       <button type="button" data-mobile-tool="empty"><span aria-hidden="true">×</span><span data-i18n="empty">Empty</span></button>
-      <button type="button" data-mobile-tool="clear"><span aria-hidden="true">○</span><span data-i18n="clear">Clear</span></button>
+      <button type="button" data-mobile-tool="clear"><span aria-hidden="true">○</span><span data-i18n="clear">Clean</span></button>
       <button type="button" data-mobile-tool="orbit"><span aria-hidden="true">↻</span><span data-i18n="moveShort">Move</span></button>
       <button type="button" id="mobileClueButton"><span aria-hidden="true">≡</span><span data-i18n="clues">Clues</span></button>
     </div>
@@ -266,7 +284,7 @@
         </section>
         <section>
           <h3 data-i18n="threeDViews">Three complementary 3D views</h3>
-          <p data-i18n="threeDViewsText">Model gives context, Slice exposes internal layers, and Track isolates exactly one clue line. Use Paint, Empty, or Clear for editing; use Move / Orbit when you want camera control.</p>
+          <p data-i18n="threeDViewsText">Model gives context, Slice exposes internal layers, and Track isolates exactly one clue line. Use Draw, Empty, or Clean for editing; use Move / Orbit when you want camera control.</p>
         </section>
         <section>
           <h3 data-i18n="shortcuts">Keyboard shortcuts</h3>

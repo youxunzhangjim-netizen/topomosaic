@@ -27,6 +27,14 @@ function colorWithAlpha(color, alpha) {
   return `rgba(${red},${green},${blue},${alpha})`;
 }
 
+const MONO_COLORS = {
+  1: '#f5f7fa',
+  2: '#d6dce5',
+  3: '#aeb8c7',
+  4: '#7f8a9c',
+  5: '#4f5a6a',
+};
+
 export class Board2D {
   constructor(canvas, callbacks = {}) {
     this.canvas = canvas;
@@ -39,6 +47,8 @@ export class Board2D {
     this.selectedTrack = null;
     this.tool = 'paint';
     this.onionSkin = true;
+    this.displayMode = 'color';
+    this.hintedVariableId = null;
     this.view = { scale: 1, offsetX: 0, offsetY: 0 };
     this.worldBounds = null;
     this.dragging = false;
@@ -125,13 +135,15 @@ export class Board2D {
     this.resize(true);
   }
 
-  update({ state, frame, selectedCellIndex, selectedTrack, tool, onionSkin } = {}) {
+  update({ state, frame, selectedCellIndex, selectedTrack, tool, onionSkin, displayMode, hintedVariableId } = {}) {
     if (state) this.state = state;
     if (frame != null) this.frame = frame;
     if (selectedCellIndex !== undefined) this.selectedCellIndex = selectedCellIndex;
     if (selectedTrack !== undefined) this.selectedTrack = selectedTrack;
     if (tool) this.tool = tool;
     if (onionSkin != null) this.onionSkin = onionSkin;
+    if (displayMode) this.displayMode = displayMode;
+    if (hintedVariableId !== undefined) this.hintedVariableId = hintedVariableId;
     this.draw();
   }
 
@@ -208,6 +220,11 @@ export class Board2D {
   }
 
   valueColor(value, alpha = 1) {
+    if (this.displayMode === 'mono') {
+      if (value === UNKNOWN) return `rgba(216,223,234,${0.18 * alpha})`;
+      if (value === EMPTY) return `rgba(9,13,19,${0.92 * alpha})`;
+      return colorWithAlpha(MONO_COLORS[value] || '#f7f9fc', alpha);
+    }
     if (value === UNKNOWN) return `rgba(44,54,70,${alpha})`;
     if (value === EMPTY) return `rgba(18,23,32,${alpha})`;
     const entry = this.puzzle.palette.find((item) => item.id === value);
@@ -226,8 +243,9 @@ export class Board2D {
     screen.forEach(([x, y], index) => (index ? context.lineTo(x, y) : context.moveTo(x, y)));
     context.closePath();
     context.clip();
-    context.strokeStyle = 'rgba(4,10,18,0.24)';
-    context.fillStyle = 'rgba(4,10,18,0.28)';
+    const useLightInk = this.displayMode === 'mono' && paletteEntry?.id >= 4;
+    context.strokeStyle = useLightInk ? 'rgba(255,255,255,0.38)' : 'rgba(4,10,18,0.3)';
+    context.fillStyle = useLightInk ? 'rgba(255,255,255,0.44)' : 'rgba(4,10,18,0.34)';
     context.lineWidth = 1;
     const spacing = 8;
     if (paletteEntry.pattern === 'dots') {
@@ -289,12 +307,16 @@ export class Board2D {
     for (const cell of this.puzzle.lattice.cells) {
       const variableId = variableIdFor(this.puzzle, this.frame, cell.index);
       const value = this.state[variableId];
+      const hinted = variableId === this.hintedVariableId;
       const onTrack = !activeCells || activeCells.has(cell.index);
       const alpha = onTrack ? 1 : 0.42;
       const screenPolygon = cell.polygon.map((point) => this.worldToScreen(point));
-      context.beginPath();
-      screenPolygon.forEach(([x, y], index) => (index ? context.lineTo(x, y) : context.moveTo(x, y)));
-      context.closePath();
+      const traceCell = () => {
+        context.beginPath();
+        screenPolygon.forEach(([x, y], index) => (index ? context.lineTo(x, y) : context.moveTo(x, y)));
+        context.closePath();
+      };
+      traceCell();
 
       let fillValue = value;
       let ghost = false;
@@ -330,15 +352,34 @@ export class Board2D {
       }
 
       if (this.puzzle.givens[variableId]) {
+        traceCell();
         context.strokeStyle = 'rgba(255,255,255,0.92)';
         context.lineWidth = Math.max(1.5, this.view.scale * 0.045);
         context.stroke();
       }
 
       if (cell.index === this.selectedCellIndex) {
+        traceCell();
         context.strokeStyle = '#ffffff';
         context.lineWidth = Math.max(2.5, this.view.scale * 0.07);
         context.stroke();
+      }
+
+      if (hinted) {
+        const [cx, cy] = this.worldToScreen(cell.position);
+        context.save();
+        traceCell();
+        context.shadowColor = 'rgba(242,201,76,0.72)';
+        context.shadowBlur = 14;
+        context.strokeStyle = '#f2c94c';
+        context.lineWidth = Math.max(3, this.view.scale * 0.09);
+        context.stroke();
+        context.shadowBlur = 0;
+        context.fillStyle = '#f2c94c';
+        context.beginPath();
+        context.arc(cx, cy, Math.max(3.5, Math.min(8, this.view.scale * 0.08)), 0, Math.PI * 2);
+        context.fill();
+        context.restore();
       }
     }
   }

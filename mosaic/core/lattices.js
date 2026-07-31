@@ -95,7 +95,7 @@ function squareLattice({ width = 8, height = width } = {}) {
   };
 }
 
-function hexPolygon(cx, cy, radius = 0.55) {
+function hexPolygon(cx, cy, radius = 0.98) {
   return Array.from({ length: 6 }, (_, index) => {
     const angle = Math.PI / 6 + index * Math.PI / 3;
     return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
@@ -165,6 +165,7 @@ function triangleLattice({ width = 5, height = 5 } = {}) {
   const cells = [];
   const a = [1, 0];
   const b = [0.5, SQRT3 / 2];
+  const toDisplayPoint = ([x, y]) => [x - y / SQRT3, -y];
 
   function addCell(i, j, orientation) {
     const p = [i * a[0] + j * b[0], i * a[1] + j * b[1]];
@@ -172,7 +173,8 @@ function triangleLattice({ width = 5, height = 5 } = {}) {
     const pb = [p[0] + b[0], p[1] + b[1]];
     const pab = [p[0] + a[0] + b[0], p[1] + a[1] + b[1]];
     const polygon = orientation === 'up' ? [p, pa, pb] : [pab, pb, pa];
-    const center = polygon.reduce((sum, point) => [sum[0] + point[0], sum[1] + point[1]], [0, 0])
+    const displayPolygon = polygon.map(toDisplayPoint);
+    const center = displayPolygon.reduce((sum, point) => [sum[0] + point[0], sum[1] + point[1]], [0, 0])
       .map((value) => value / 3);
     const index = cells.length;
     cells.push({
@@ -180,8 +182,8 @@ function triangleLattice({ width = 5, height = 5 } = {}) {
       index,
       key: `${i},${j},${orientation}`,
       coord: { i, j, orientation },
-      position: [center[0], -center[1], 0],
-      polygon: polygon.map(([x, y]) => [x, -y]),
+      position: [center[0], center[1], 0],
+      polygon: displayPolygon,
     });
   }
 
