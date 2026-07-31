@@ -1,0 +1,14 @@
+{
+  "name": "TopoMosaic — Spatial & Temporal Logic",
+  "short_name": "TopoMosaic",
+  "description": "Colored ordered-track puzzles across tilings, 3D lattices, and time.",
+  "start_url": "./?dimension=2&time=1&lattice=square&puzzle=square-time-flower",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0f16",
+  "theme_color": "#10151e",
+  "orientation": "any",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

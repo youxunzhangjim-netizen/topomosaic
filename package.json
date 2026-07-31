@@ -1,0 +1,12 @@
+{
+  "name": "topomosaic-v1",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Unified colored ordered-track puzzles across 2D, time, 3D lattices, and 3D+time.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/validate.mjs",
+    "serve": "node scripts/serve.mjs"
+  }
+}

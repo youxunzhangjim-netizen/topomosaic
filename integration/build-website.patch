@@ -1,0 +1,7 @@
+--- a/tools/build-website.mjs
++++ b/tools/build-website.mjs
+@@
+ copy(join(root, 'life'), join(output, 'life'));
+ copyIfExists(join(root, 'spacetime'), join(output, 'spacetime'));
++copyIfExists(join(root, 'mosaic'), join(output, 'mosaic'));
+ writeFileSync(join(output, '.nojekyll'), '');
