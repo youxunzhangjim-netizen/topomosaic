@@ -19,8 +19,23 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 const I18N = {
   en: {
+    pageTitle: 'TopoMosaic — Spatial & Temporal Logic',
+    pageDescription: 'TopoMosaic: colored ordered-track puzzles on 2D tilings, 3D lattices, and time.',
+    skipToPuzzle: 'Skip to puzzle', backToTopoboard: 'Back to Topoboard', openHelp: 'Open help',
+    reportContact: 'Report contact', reportLabel: 'Report',
+    switchToChinese: 'Switch language to Traditional Chinese', switchToEnglish: 'Switch language to English',
+    languageCodeToChinese: '中文', languageCodeToEnglish: 'EN', languageChanged: 'Language switched to English.',
+    puzzleConfiguration: 'Puzzle configuration', dimensionTimeMode: 'Dimension and time mode', puzzleTools: 'Puzzle tools',
+    colorPalette: 'Color palette', zoomOut: 'Zoom out', zoomIn: 'Zoom in', puzzleProgress: 'Puzzle progress',
+    viewMode: 'View mode', board2dAria: 'Two-dimensional puzzle board', board3dAria: 'Interactive three-dimensional puzzle view',
+    sliceControls: '3D slice controls', previousSlice: 'Previous slice', nextSlice: 'Next slice', sliceLayer: 'Slice layer',
+    timeNavigation: 'Time navigation', previousFrame: 'Previous frame', nextFrame: 'Next frame',
+    currentTimeFrame: 'Current time frame', playAnimation: 'Play animation', pauseAnimation: 'Pause animation',
+    cluesCellInfo: 'Clues and cell information', clueDimension: 'Clue dimension', previousClueLine: 'Previous clue line',
+    nextClueLine: 'Next clue line', orderedColoredClues: 'Ordered colored clues', selectedTrackCells: 'Cells on the selected clue track',
+    mobilePuzzleTools: 'Mobile puzzle tools', closeHelp: 'Close help',
     tagline: 'Spatial & temporal colored logic', lattice: 'Lattice', puzzle: 'Puzzle', tools: 'Tools', paint: 'Paint',
-    empty: 'Empty', clear: 'Clear', inspect: 'Inspect', move: 'Move / Orbit', palette: 'Palette', actions: 'Actions',
+    empty: 'Empty', clear: 'Clear', inspect: 'Inspect', move: 'Move / Orbit', moveShort: 'Move', palette: 'Palette', actions: 'Actions',
     undo: 'Undo', redo: 'Redo', hint: 'Hint', check: 'Check', reset: 'Reset', view: 'View', fit: 'Fit',
     onionSkin: 'Previous-frame ghost', strictMode: 'Immediate mistake warning', board: 'Board', model: 'Model',
     slice: 'Slice', track: 'Track', plane: 'Plane', spatialClue: 'Spatial clue', timeClue: 'Time clue',
@@ -43,11 +58,29 @@ const I18N = {
     checkWrong: (count) => `${count} decided cell${count === 1 ? '' : 's'} currently disagree with the solution.`,
     strictRejected: 'That value is not compatible with this puzzle in strict mode.', resetConfirm: 'Reset this puzzle and erase its saved progress?',
     completeText: (title) => `${title} is complete. Explore the finished model, its parts, or replay its time evolution.`,
+    difficultyStarter: 'Starter', difficultyEasy: 'Easy', difficultyMedium: 'Medium', difficultyAdvanced: 'Advanced',
+    clueChipTitle: (color, length) => `${color}, run length ${length}`,
+    trackCellLabel: (cell, frame, value, given) => `${cell}, Frame ${frame}, ${value}${given ? ', Given' : ''}`,
     mode2: '2D', mode2t: '2D + Time', mode3: '3D', mode3t: '3D + Time',
   },
   zh: {
+    pageTitle: 'TopoMosaic — 空間與時間邏輯',
+    pageDescription: 'TopoMosaic：在 2D 鋪砌、3D 晶格與時間軸上解彩色有序路徑謎題。',
+    skipToPuzzle: '跳到謎題', backToTopoboard: '返回 Topoboard', openHelp: '開啟說明',
+    reportContact: '問題回報聯絡方式', reportLabel: '回報',
+    switchToChinese: '切換語言為繁體中文', switchToEnglish: '切換語言為 English',
+    languageCodeToChinese: '中文', languageCodeToEnglish: 'EN', languageChanged: '語言已切換為繁體中文。',
+    puzzleConfiguration: '關卡設定', dimensionTimeMode: '維度與時間模式', puzzleTools: '謎題工具',
+    colorPalette: '色盤', zoomOut: '縮小', zoomIn: '放大', puzzleProgress: '解題進度',
+    viewMode: '視圖模式', board2dAria: '二維謎題盤面', board3dAria: '可互動的三維謎題視圖',
+    sliceControls: '3D 切片控制', previousSlice: '上一個切片', nextSlice: '下一個切片', sliceLayer: '切片層',
+    timeNavigation: '時間導覽', previousFrame: '上一幀', nextFrame: '下一幀',
+    currentTimeFrame: '目前時間幀', playAnimation: '播放動畫', pauseAnimation: '暫停動畫',
+    cluesCellInfo: '線索與格子資訊', clueDimension: '線索維度', previousClueLine: '上一條線索',
+    nextClueLine: '下一條線索', orderedColoredClues: '有序彩色線索', selectedTrackCells: '目前線索路徑上的格子',
+    mobilePuzzleTools: '手機謎題工具', closeHelp: '關閉說明',
     tagline: '跨空間與時間的彩色邏輯', lattice: '晶格／鋪砌', puzzle: '關卡', tools: '工具', paint: '上色',
-    empty: '標記空格', clear: '清除', inspect: '檢視', move: '移動／旋轉', palette: '色盤', actions: '操作',
+    empty: '標記空格', clear: '清除', inspect: '檢視', move: '移動／旋轉', moveShort: '移動', palette: '色盤', actions: '操作',
     undo: '復原', redo: '重做', hint: '提示', check: '檢查', reset: '重設', view: '視圖', fit: '置中',
     onionSkin: '顯示前一幀殘影', strictMode: '立即提示錯誤', board: '盤面', model: '模型', slice: '切片', track: '路徑',
     plane: '切面', spatialClue: '空間線索', timeClue: '時間線索', direction: '方向', orderedTrack: '有序路徑',
@@ -66,6 +99,9 @@ const I18N = {
     contradiction: '目前標記與至少一條線索矛盾，請復原或清除最近的操作。', checkPerfect: '所有已決定的格子都正確，請繼續完成其餘未知格。',
     checkWrong: (count) => `目前有 ${count} 個已決定格與答案不一致。`, strictRejected: '嚴格模式下不能填入與本關不相容的狀態。',
     resetConfirm: '確定重設本關並刪除已儲存進度？', completeText: (title) => `「${title}」已完成。可探索完成模型、語意部件或重播時間演化。`,
+    difficultyStarter: '入門', difficultyEasy: '初級', difficultyMedium: '中級', difficultyAdvanced: '進階',
+    clueChipTitle: (color, length) => `${color}，連續長度 ${length}`,
+    trackCellLabel: (cell, frame, value, given) => `${cell}，第 ${frame} 幀，${value}${given ? '，已知格' : ''}`,
     mode2: '2D', mode2t: '2D＋時間', mode3: '3D', mode3t: '3D＋時間',
   },
 };
@@ -73,6 +109,68 @@ const I18N = {
 const LATTICE_NAMES = {
   en: { square: 'Square cells', hex: 'Hexagonal cells', triangle: 'Triangular cells', sc: 'Simple cubic', fcc: 'FCC Voronoi cells', bcc: 'BCC Voronoi cells', hcp: 'HCP Voronoi cells' },
   zh: { square: '正方格', hex: '六角格', triangle: '三角格', sc: '簡單立方', fcc: 'FCC Voronoi 格', bcc: 'BCC Voronoi 格', hcp: 'HCP Voronoi 格' },
+};
+
+const PALETTE_LABELS = {
+  en: {
+    yellow: { name: 'Sun yellow', symbol: 'Y' },
+    blue: { name: 'Sky blue', symbol: 'B' },
+    green: { name: 'Leaf green', symbol: 'G' },
+    red: { name: 'Warm red', symbol: 'R' },
+    brown: { name: 'Earth brown', symbol: 'E' },
+  },
+  zh: {
+    yellow: { name: '向日黃', symbol: '黃' },
+    blue: { name: '天空藍', symbol: '藍' },
+    green: { name: '葉綠', symbol: '綠' },
+    red: { name: '暖紅', symbol: '紅' },
+    brown: { name: '土棕', symbol: '棕' },
+  },
+};
+
+const DIFFICULTY_KEYS = {
+  Starter: 'difficultyStarter',
+  Easy: 'difficultyEasy',
+  Medium: 'difficultyMedium',
+  Advanced: 'difficultyAdvanced',
+};
+
+const TRACK_FAMILY_LABELS = {
+  en: {
+    row: 'Rows', column: 'Columns',
+    'hex-q': 'Q direction', 'hex-r': 'R direction', 'hex-s': 'S direction',
+    'tri-a': 'A zigzag', 'tri-b': 'B zigzag', 'tri-c': 'C zigzag',
+    'sc-x': 'X tracks', 'sc-y': 'Y tracks', 'sc-z': 'Z tracks',
+    'fcc-110': '[110]', 'fcc-1m10': '[1-10]', 'fcc-101': '[101]', 'fcc-10m1': '[10-1]', 'fcc-011': '[011]', 'fcc-01m1': '[01-1]',
+    'bcc-111': '[111]', 'bcc-11m1': '[11-1]', 'bcc-1m11': '[1-11]', 'bcc-m111': '[-111]',
+    'bcc-100': '[100] secondary', 'bcc-010': '[010] secondary', 'bcc-001': '[001] secondary',
+    'hcp-a1': 'Basal a₁', 'hcp-a2': 'Basal a₂', 'hcp-a3': 'Basal a₃', 'hcp-c': 'Axial c',
+  },
+  zh: {
+    row: '橫列', column: '直行',
+    'hex-q': 'Q 方向', 'hex-r': 'R 方向', 'hex-s': 'S 方向',
+    'tri-a': 'A 鋸齒線', 'tri-b': 'B 鋸齒線', 'tri-c': 'C 鋸齒線',
+    'sc-x': 'X 路徑', 'sc-y': 'Y 路徑', 'sc-z': 'Z 路徑',
+    'fcc-110': '[110]', 'fcc-1m10': '[1-10]', 'fcc-101': '[101]', 'fcc-10m1': '[10-1]', 'fcc-011': '[011]', 'fcc-01m1': '[01-1]',
+    'bcc-111': '[111]', 'bcc-11m1': '[11-1]', 'bcc-1m11': '[1-11]', 'bcc-m111': '[-111]',
+    'bcc-100': '[100] 次要', 'bcc-010': '[010] 次要', 'bcc-001': '[001] 次要',
+    'hcp-a1': '基面 a₁', 'hcp-a2': '基面 a₂', 'hcp-a3': '基面 a₃', 'hcp-c': 'c 軸',
+  },
+};
+
+const SLICE_FAMILY_LABELS = {
+  en: {
+    'slice-x': 'X layers', 'slice-y': 'Y layers', 'slice-z': 'Z layers',
+    'fcc-100': '{100} X planes', 'fcc-010': '{100} Y planes', 'fcc-001': '{100} Z planes', 'fcc-111': '{111} close-packed planes',
+    'bcc-100-plane': '{100} X planes', 'bcc-010-plane': '{100} Y planes', 'bcc-001-plane': '{100} Z planes', 'bcc-111-plane': '{111} diagonal planes',
+    'hcp-basal': 'Basal (0001) layers', 'hcp-prism-a1': 'Prismatic A layers', 'hcp-prism-a2': 'Prismatic B layers',
+  },
+  zh: {
+    'slice-x': 'X 層', 'slice-y': 'Y 層', 'slice-z': 'Z 層',
+    'fcc-100': '{100} X 面', 'fcc-010': '{100} Y 面', 'fcc-001': '{100} Z 面', 'fcc-111': '{111} 密排面',
+    'bcc-100-plane': '{100} X 面', 'bcc-010-plane': '{100} Y 面', 'bcc-001-plane': '{100} Z 面', 'bcc-111-plane': '{111} 對角面',
+    'hcp-basal': '基面 (0001) 層', 'hcp-prism-a1': '柱面 A 層', 'hcp-prism-a2': '柱面 B 層',
+  },
 };
 
 class TopoMosaicApp {
@@ -98,6 +196,7 @@ class TopoMosaicApp {
     this.playTimer = null;
     this.saveTimer = null;
     this.toastTimer = null;
+    this.rendererNoticeMode = null;
     this.board2d = new Board2D($('#board2d'), { onCellPointer: (cell, detail) => this.handleCellPointer(cell, detail) });
     this.board3d = null;
     this.worker = null;
@@ -114,6 +213,58 @@ class TopoMosaicApp {
     return typeof value === 'function' ? value(...args) : value;
   }
 
+  fromLocalizedMap(map, key, fallback = '') {
+    return map[this.lang]?.[key] ?? map.en?.[key] ?? fallback;
+  }
+
+  puzzleTitle(puzzle = this.puzzle) {
+    if (!puzzle) return '';
+    return this.lang === 'zh' ? puzzle.titleZh || puzzle.title : puzzle.title;
+  }
+
+  puzzleDescription(puzzle = this.puzzle) {
+    if (!puzzle) return '';
+    return this.lang === 'zh' ? puzzle.descriptionZh || puzzle.description : puzzle.description;
+  }
+
+  latticeName(kind) {
+    return this.fromLocalizedMap(LATTICE_NAMES, kind, kind);
+  }
+
+  difficultyLabel(difficulty) {
+    return this.t(DIFFICULTY_KEYS[difficulty] || difficulty);
+  }
+
+  trackFamilyLabel(trackOrFamily, fallback = '') {
+    const family = typeof trackOrFamily === 'string' ? trackOrFamily : trackOrFamily?.family;
+    const source = typeof trackOrFamily === 'string' ? fallback : trackOrFamily?.familyLabel;
+    return this.fromLocalizedMap(TRACK_FAMILY_LABELS, family, source || family || '');
+  }
+
+  sliceFamilyLabel(family) {
+    return this.fromLocalizedMap(SLICE_FAMILY_LABELS, family?.id, family?.label || '');
+  }
+
+  paletteInfo(entry) {
+    return this.fromLocalizedMap(PALETTE_LABELS, entry?.key, null) || {
+      name: entry?.name || String(entry?.id ?? ''),
+      symbol: entry?.key?.[0]?.toUpperCase() || String(entry?.id ?? ''),
+    };
+  }
+
+  paletteName(entry) {
+    return this.paletteInfo(entry).name;
+  }
+
+  paletteSymbol(entry) {
+    return this.paletteInfo(entry).symbol;
+  }
+
+  partName(part) {
+    if (!part) return '';
+    return this.lang === 'zh' ? part.nameZh || part.name : part.name;
+  }
+
   bindEvents() {
     $('#languageButton').addEventListener('click', () => {
       this.lang = this.lang === 'en' ? 'zh' : 'en';
@@ -121,6 +272,8 @@ class TopoMosaicApp {
       localStorage.setItem('topological-boardgame:language', this.lang);
       this.applyLanguage();
       this.refreshDynamicText();
+      if (this.puzzle) this.updateUrl();
+      this.announce(this.t('languageChanged'));
     });
     $('#helpButton').addEventListener('click', () => $('#helpDialog').showModal());
     $$('#modeSwitch [data-mode]').forEach((button) => button.addEventListener('click', () => this.setMode(button.dataset.mode)));
@@ -198,7 +351,11 @@ class TopoMosaicApp {
     this.mode = mode;
     this.modeDimension = Number(dimensionText);
     this.modeHasTime = timeText === 'time';
-    $$('#modeSwitch [data-mode]').forEach((button) => button.classList.toggle('active', button.dataset.mode === mode));
+    $$('#modeSwitch [data-mode]').forEach((button) => {
+      const active = button.dataset.mode === mode;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
     this.populateLatticeSelect(preferredLattice);
     this.populatePuzzleSelect(preferredPuzzle);
   }
@@ -211,7 +368,7 @@ class TopoMosaicApp {
     const previous = preferred || select.value;
     select.replaceChildren(...options.map((option) => {
       const element = document.createElement('option'); element.value = option.id;
-      element.textContent = LATTICE_NAMES[this.lang][option.id]; return element;
+      element.textContent = this.latticeName(option.id); return element;
     }));
     select.value = options.some((option) => option.id === previous) ? previous : options[0]?.id;
   }
@@ -225,7 +382,7 @@ class TopoMosaicApp {
     const previous = preferred || select.value;
     select.replaceChildren(...puzzles.map((puzzle) => {
       const option = document.createElement('option'); option.value = puzzle.id;
-      option.textContent = this.lang === 'zh' ? puzzle.titleZh : puzzle.title; return option;
+      option.textContent = this.puzzleTitle(puzzle); return option;
     }));
     select.value = puzzles.some((puzzle) => puzzle.id === previous) ? previous : puzzles[0]?.id;
     const puzzle = findPuzzle(select.value);
@@ -252,7 +409,7 @@ class TopoMosaicApp {
     this.activeFamily = puzzle.lattice.tracks[0]?.family || null;
     this.selectBestTrack();
     $('#puzzleSelect').value = puzzle.id;
-    $('#difficultyBadge').textContent = puzzle.difficulty;
+    $('#difficultyBadge').textContent = this.difficultyLabel(puzzle.difficulty);
     this.renderPalette();
     this.configureModeUi();
     this.refreshDynamicText();
@@ -264,24 +421,29 @@ class TopoMosaicApp {
 
   async ensure3DRenderer() {
     $('#rendererNotice').hidden = false;
-    $('#rendererNotice').textContent = this.t('loading3d');
+    this.rendererNoticeMode = 'loading3d';
+    $('#rendererNotice').textContent = this.t(this.rendererNoticeMode);
     try {
       if (!this.board3d) {
         const { Board3D } = await import('./render/board3d.js');
         this.board3d = new Board3D($('#board3d'), {
+          ariaLabel: this.t('board3dAria'),
           onCellPointer: (cell, detail) => this.handleCellPointer(cell, detail),
           onSliceChange: (slice) => this.syncSliceUi(slice),
         });
+        this.board3d.renderer.domElement.setAttribute('aria-label', this.t('board3dAria'));
       }
       this.board3d.setPuzzle(this.puzzle, this.state);
       this.board3d.setTool(this.tool);
       this.board3d.setViewMode(this.viewMode);
       this.syncSliceUi(this.board3d.getSliceState());
       $('#rendererNotice').hidden = true;
+      this.rendererNoticeMode = null;
     } catch (error) {
       console.error(error);
       $('#rendererNotice').hidden = false;
-      $('#rendererNotice').textContent = this.t('rendererFallback');
+      this.rendererNoticeMode = 'rendererFallback';
+      $('#rendererNotice').textContent = this.t(this.rendererNoticeMode);
     }
   }
 
@@ -303,35 +465,60 @@ class TopoMosaicApp {
 
   refreshDynamicText() {
     if (!this.puzzle) return;
-    $('#puzzleTitle').textContent = this.lang === 'zh' ? this.puzzle.titleZh : this.puzzle.title;
-    $('#puzzleDescription').textContent = this.lang === 'zh' ? this.puzzle.descriptionZh : this.puzzle.description;
+    $('#puzzleTitle').textContent = this.puzzleTitle();
+    $('#puzzleDescription').textContent = this.puzzleDescription();
+    $('#difficultyBadge').textContent = this.difficultyLabel(this.puzzle.difficulty);
     const modeKey = this.puzzle.dimension === 2 ? (this.puzzle.hasTime ? 'mode2t' : 'mode2') : (this.puzzle.hasTime ? 'mode3t' : 'mode3');
-    $('#modeEyebrow').textContent = `${this.t(modeKey)} · ${LATTICE_NAMES[this.lang][this.puzzle.lattice.kind]}`;
+    $('#modeEyebrow').textContent = `${this.t(modeKey)} · ${this.latticeName(this.puzzle.lattice.kind)}`;
     [...$('#puzzleSelect').options].forEach((option) => {
-      const puzzle = findPuzzle(option.value); if (puzzle) option.textContent = this.lang === 'zh' ? puzzle.titleZh : puzzle.title;
+      const puzzle = findPuzzle(option.value); if (puzzle) option.textContent = this.puzzleTitle(puzzle);
     });
-    [...$('#latticeSelect').options].forEach((option) => { option.textContent = LATTICE_NAMES[this.lang][option.value]; });
+    [...$('#latticeSelect').options].forEach((option) => { option.textContent = this.latticeName(option.value); });
+    if (this.rendererNoticeMode) $('#rendererNotice').textContent = this.t(this.rendererNoticeMode);
+    this.renderPalette();
+    this.renderTrackNavigation();
     this.renderSemanticLegend();
     this.renderClues();
+    this.renderTrackStrip();
     this.renderCellCard();
+    this.renderTimeline();
+    this.updateRenderer();
   }
 
   applyLanguage() {
     document.documentElement.lang = this.lang === 'zh' ? 'zh-Hant' : 'en';
-    $('#languageButton').textContent = this.lang === 'en' ? '中' : 'EN';
+    document.title = this.t('pageTitle');
+    document.querySelector('meta[name="description"]')?.setAttribute('content', this.t('pageDescription'));
+    const targetLanguageKey = this.lang === 'en' ? 'switchToChinese' : 'switchToEnglish';
+    const languageButton = $('#languageButton');
+    languageButton.setAttribute('aria-label', this.t(targetLanguageKey));
+    languageButton.title = this.t(targetLanguageKey);
+    $('#languageCode').textContent = this.lang === 'en' ? this.t('languageCodeToChinese') : this.t('languageCodeToEnglish');
     const modeLabels = { '2-static': this.t('mode2'), '2-time': this.t('mode2t'), '3-static': this.t('mode3'), '3-time': this.t('mode3t') };
     $$('#modeSwitch [data-mode]').forEach((button) => { button.textContent = modeLabels[button.dataset.mode]; });
     $$('[data-i18n]').forEach((element) => {
       const value = I18N[this.lang][element.dataset.i18n];
       if (typeof value === 'string') element.textContent = value;
     });
+    $$('[data-i18n-aria]').forEach((element) => { element.setAttribute('aria-label', this.t(element.dataset.i18nAria)); });
+    $$('[data-i18n-title]').forEach((element) => { element.title = this.t(element.dataset.i18nTitle); });
+    this.board3d?.renderer?.domElement?.setAttribute('aria-label', this.t('board3dAria'));
+    this.renderPlaybackButton();
   }
 
   setTool(tool) {
     this.stopPlayback();
     this.tool = tool;
-    $$('#toolGrid [data-tool]').forEach((button) => button.classList.toggle('active', button.dataset.tool === tool));
-    $$('[data-mobile-tool]').forEach((button) => button.classList.toggle('active', button.dataset.mobileTool === tool));
+    $$('#toolGrid [data-tool]').forEach((button) => {
+      const active = button.dataset.tool === tool;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    $$('[data-mobile-tool]').forEach((button) => {
+      const active = button.dataset.mobileTool === tool;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
     this.updateRenderer();
   }
 
@@ -341,7 +528,9 @@ class TopoMosaicApp {
       const button = document.createElement('button');
       button.type = 'button'; button.className = `palette-button${entry.id === this.selectedColor ? ' active' : ''}`;
       button.setAttribute('role', 'radio'); button.setAttribute('aria-checked', String(entry.id === this.selectedColor));
-      button.title = entry.name; button.dataset.colorId = String(entry.id);
+      button.title = this.paletteName(entry);
+      button.setAttribute('aria-label', this.paletteName(entry));
+      button.dataset.colorId = String(entry.id);
       button.innerHTML = `<span class="swatch" style="background:${entry.color}"></span><span class="key">${index + 1}</span>`;
       button.addEventListener('click', () => {
         this.selectedColor = entry.id; this.setTool('paint'); this.renderPalette();
@@ -420,7 +609,11 @@ class TopoMosaicApp {
   setClueMode(mode) {
     if (mode === 'time' && !this.puzzle.hasTime) return;
     this.clueMode = mode;
-    $$('#clueModeTabs [data-clue-mode]').forEach((button) => button.classList.toggle('active', button.dataset.clueMode === mode));
+    $$('#clueModeTabs [data-clue-mode]').forEach((button) => {
+      const active = button.dataset.clueMode === mode;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
     this.selectBestTrack(); this.updateAll();
   }
 
@@ -460,7 +653,11 @@ class TopoMosaicApp {
   setViewMode(mode) {
     if (this.puzzle.dimension === 2) mode = 'board';
     this.viewMode = mode;
-    $$('#viewTabs [data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === mode));
+    $$('#viewTabs [data-view]').forEach((button) => {
+      const active = button.dataset.view === mode;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
     $('#sliceControls').hidden = !(this.puzzle.dimension === 3 && mode === 'slice');
     this.board3d?.setViewMode(mode);
     this.updateRenderer();
@@ -487,7 +684,7 @@ class TopoMosaicApp {
     };
     if (this.puzzle.dimension === 2) this.board2d.update(data);
     else this.board3d?.update(data);
-    $('#viewportBadge').textContent = this.puzzle.hasTime ? `${this.t('frame')} ${this.currentFrame + 1} / ${this.puzzle.frameCount}` : LATTICE_NAMES[this.lang][this.puzzle.lattice.kind];
+    $('#viewportBadge').textContent = this.puzzle.hasTime ? `${this.t('frame')} ${this.currentFrame + 1} / ${this.puzzle.frameCount}` : this.latticeName(this.puzzle.lattice.kind);
   }
 
   renderProgress() {
@@ -506,11 +703,11 @@ class TopoMosaicApp {
     } else {
       const tracks = this.puzzle.tracks.filter((track) => track.type === 'space' && track.frame === this.currentFrame);
       const families = [...new Map(tracks.map((track) => [track.family, track.familyLabel])).entries()];
-      familySelect.replaceChildren(...families.map(([id, label]) => new Option(label, id)));
+      familySelect.replaceChildren(...families.map(([id, label]) => new Option(this.trackFamilyLabel(id, label), id)));
       familySelect.value = this.activeFamily;
       familySelect.disabled = false;
     }
-    $('#trackFamilyLabel').textContent = this.selectedTrack?.familyLabel || '—';
+    $('#trackFamilyLabel').textContent = this.selectedTrack ? this.trackFamilyLabel(this.selectedTrack) : '—';
     $('#trackLineLabel').textContent = this.selectedTrack?.lineLabel || '—';
   }
 
@@ -523,8 +720,9 @@ class TopoMosaicApp {
       container.replaceChildren(...this.selectedTrack.clues.map((run) => {
         const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
         const chip = document.createElement('span'); chip.className = 'clue-chip';
-        chip.style.background = palette?.color || '#fff'; chip.title = `${palette?.name || run.colorId}: ${run.length}`;
-        chip.innerHTML = `<span class="clue-pattern" aria-hidden="true"></span><span>${palette?.key?.[0]?.toUpperCase() || ''}${run.length}</span>`;
+        chip.style.background = palette?.color || '#fff';
+        chip.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
+        chip.innerHTML = `<span class="clue-pattern" aria-hidden="true"></span><span>${this.paletteSymbol(palette)}${run.length}</span>`;
         return chip;
       }));
     }
@@ -545,7 +743,13 @@ class TopoMosaicApp {
       button.textContent = value === EMPTY ? '×' : value === UNKNOWN ? '?' : '';
       button.innerHTML += `<span class="cell-index">${this.selectedTrack.type === 'time' ? `t${frame + 1}` : offset + 1}</span>`;
       button.setAttribute('role', 'listitem');
-      button.setAttribute('aria-label', `${this.describeCell(cellIndex)}, ${this.t('frame')} ${frame + 1}, ${this.describeValue(value)}`);
+      button.setAttribute('aria-label', this.t(
+        'trackCellLabel',
+        this.describeCell(cellIndex),
+        frame + 1,
+        this.describeValue(value),
+        this.puzzle.givens[variableId],
+      ));
       button.addEventListener('click', () => {
         this.currentFrame = frame; this.selectedCellIndex = cellIndex; this.selectBestTrack();
         if (!['inspect', 'orbit', 'move'].includes(this.tool)) {
@@ -565,13 +769,13 @@ class TopoMosaicApp {
     $('#cellCoordinate').textContent = this.describeCell(this.selectedCellIndex);
     $('#cellState').textContent = this.describeValue(value);
     const memberships = this.puzzle.tracks.filter((track) => track.type === 'space' && track.frame === this.currentFrame && track.cells.includes(this.selectedCellIndex));
-    $('#cellMemberships').textContent = memberships.map((track) => `${track.familyLabel} ${track.lineLabel}`).join(' · ') || '—';
+    $('#cellMemberships').textContent = memberships.map((track) => `${this.trackFamilyLabel(track)} ${track.lineLabel}`).join(' · ') || '—';
     const temporal = this.puzzle.tracks.find((track) => track.type === 'time' && track.cells[0] === this.selectedCellIndex);
     $('#temporalSummary').textContent = temporal ? this.clueText(temporal.clues) : '—';
     const partId = this.puzzle.semanticPartByVariable[variableId];
     const part = this.puzzle.semanticParts.find((entry) => entry.id === partId);
     const revealed = value > EMPTY && value === this.puzzle.solution[variableId];
-    $('#semanticPart').textContent = part && revealed ? (this.lang === 'zh' ? part.nameZh || part.name : part.name) : part ? this.t('hidden') : this.t('noPart');
+    $('#semanticPart').textContent = part && revealed ? this.partName(part) : part ? this.t('hidden') : this.t('noPart');
   }
 
   renderSemanticLegend() {
@@ -580,7 +784,7 @@ class TopoMosaicApp {
     if (section.hidden) return;
     $('#semanticLegend').replaceChildren(...this.puzzle.semanticParts.map((part) => {
       const item = document.createElement('div'); item.className = 'semantic-item';
-      item.innerHTML = `<span class="semantic-swatch" style="background:${this.colorForValue(part.colorId)}"></span><span>${this.lang === 'zh' ? part.nameZh || part.name : part.name}</span>`;
+      item.innerHTML = `<span class="semantic-swatch" style="background:${this.colorForValue(part.colorId)}"></span><span>${this.partName(part)}</span>`;
       return item;
     }));
     const note = this.lang === 'zh' ? this.puzzle.educationalNoteZh : this.puzzle.educationalNote;
@@ -600,7 +804,7 @@ class TopoMosaicApp {
     if (!slice) return;
     const select = $('#sliceFamilySelect');
     const current = select.value;
-    select.replaceChildren(...slice.families.map((family) => new Option(family.label, family.id)));
+    select.replaceChildren(...slice.families.map((family) => new Option(this.sliceFamilyLabel(family), family.id)));
     select.value = slice.family?.id || current;
     $('#sliceSlider').max = String(Math.max(0, slice.levels.length - 1));
     $('#sliceSlider').value = String(slice.index);
@@ -613,7 +817,7 @@ class TopoMosaicApp {
     if (!clues.length) return this.t('noRuns');
     return clues.map((run) => {
       const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
-      return `${palette?.key?.[0]?.toUpperCase() || run.colorId}${run.length}`;
+      return `${this.paletteSymbol(palette)}${run.length}`;
     }).join(' · ');
   }
 
@@ -628,7 +832,8 @@ class TopoMosaicApp {
   describeValue(value) {
     if (value === UNKNOWN) return this.t('unknown');
     if (value === EMPTY) return this.t('empty');
-    return this.puzzle.palette.find((entry) => entry.id === value)?.name || String(value);
+    const entry = this.puzzle.palette.find((item) => item.id === value);
+    return entry ? this.paletteName(entry) : String(value);
   }
 
   colorForValue(value) { return this.puzzle.palette.find((entry) => entry.id === value)?.color || '#ffffff'; }
@@ -688,10 +893,10 @@ class TopoMosaicApp {
 
   showCompletion() {
     this.stopPlayback();
-    $('#completionText').textContent = this.t('completeText', this.lang === 'zh' ? this.puzzle.titleZh : this.puzzle.title);
+    $('#completionText').textContent = this.t('completeText', this.puzzleTitle());
     $('#completionParts').replaceChildren(...this.puzzle.semanticParts.map((part) => {
       const item = document.createElement('span'); item.className = 'semantic-item';
-      item.innerHTML = `<span class="semantic-swatch" style="background:${this.colorForValue(part.colorId)}"></span><span>${this.lang === 'zh' ? part.nameZh || part.name : part.name}</span>`;
+      item.innerHTML = `<span class="semantic-swatch" style="background:${this.colorForValue(part.colorId)}"></span><span>${this.partName(part)}</span>`;
       return item;
     }));
     $('#completionDialog').showModal();
@@ -706,9 +911,18 @@ class TopoMosaicApp {
 
   togglePlayback() { this.playTimer ? this.stopPlayback() : this.startPlayback(true); }
 
+  renderPlaybackButton() {
+    const button = $('#playButton');
+    if (!button) return;
+    const key = this.playTimer ? 'pauseAnimation' : 'playAnimation';
+    button.textContent = this.playTimer ? '❚❚' : '▶';
+    button.setAttribute('aria-label', this.t(key));
+    button.title = this.t(key);
+  }
+
   startPlayback(loop = true) {
     if (!this.puzzle.hasTime) return;
-    this.stopPlayback(); $('#playButton').textContent = '❚❚'; $('#playButton').setAttribute('aria-label', 'Pause animation');
+    this.stopPlayback();
     this.playTimer = setInterval(() => {
       if (this.currentFrame >= this.puzzle.frameCount - 1) {
         if (!loop) { this.stopPlayback(); return; }
@@ -716,12 +930,13 @@ class TopoMosaicApp {
       } else this.currentFrame += 1;
       this.selectBestTrack(); this.updateAll();
     }, 720);
+    this.renderPlaybackButton();
   }
 
   stopPlayback() {
     if (this.playTimer) clearInterval(this.playTimer);
     this.playTimer = null;
-    if ($('#playButton')) { $('#playButton').textContent = '▶'; $('#playButton').setAttribute('aria-label', 'Play animation'); }
+    this.renderPlaybackButton();
   }
 
   scheduleSave() {
@@ -735,6 +950,7 @@ class TopoMosaicApp {
     url.searchParams.set('time', this.puzzle.hasTime ? '1' : '0');
     url.searchParams.set('lattice', this.puzzle.lattice.kind);
     url.searchParams.set('puzzle', this.puzzle.id);
+    url.searchParams.set('lang', this.lang);
     history.replaceState(null, '', url);
   }
 

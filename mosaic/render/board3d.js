@@ -54,7 +54,7 @@ export class Board3D {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.domElement.className = 'three-canvas';
-    this.renderer.domElement.setAttribute('aria-label', 'Interactive three-dimensional puzzle view');
+    this.renderer.domElement.setAttribute('aria-label', callbacks.ariaLabel || 'Interactive three-dimensional puzzle view');
     this.renderer.domElement.tabIndex = 0;
     this.container.replaceChildren(this.renderer.domElement);
 

@@ -19,11 +19,11 @@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#workspace">Skip to puzzle</a>
+  <a class="skip-link" href="#workspace" data-i18n="skipToPuzzle">Skip to puzzle</a>
   <div id="app" class="app-shell">
     <header class="topbar">
       <div class="brand-group">
-        <a class="home-button icon-button" id="homeLink" href="../index.html" aria-label="Back to Topoboard">
+        <a class="home-button icon-button" id="homeLink" href="../index.html" aria-label="Back to Topoboard" data-i18n-aria="backToTopoboard" data-i18n-title="backToTopoboard">
           <span aria-hidden="true">←</span>
         </a>
         <div class="brand-mark" aria-hidden="true">
@@ -39,14 +39,25 @@
         </div>
       </div>
       <div class="top-actions">
-        <button type="button" class="icon-button" id="languageButton" aria-label="Switch language">中</button>
-        <button type="button" class="icon-button" id="helpButton" aria-label="Open help">?</button>
+        <address class="report-contact" aria-label="Report contact" data-i18n-aria="reportContact">
+          <span class="report-label" data-i18n="reportLabel">Report</span>
+          <strong>YOU-XUN ZHANG</strong>
+          <a href="mailto:youxunzhangjim@gmail.com?subject=TopoMosaic%20Report">youxunzhangjim@gmail.com</a>
+        </address>
+        <button type="button" class="icon-button language-button" id="languageButton" aria-label="Switch language to Traditional Chinese" title="Switch language">
+          <svg class="language-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 0 1 0 18M12 3a14.5 14.5 0 0 0 0 18"></path>
+          </svg>
+          <span class="language-code" id="languageCode">中文</span>
+        </button>
+        <button type="button" class="icon-button" id="helpButton" aria-label="Open help" data-i18n-aria="openHelp" data-i18n-title="openHelp">?</button>
       </div>
     </header>
 
-    <section class="configuration" aria-label="Puzzle configuration">
+    <section class="configuration" aria-label="Puzzle configuration" data-i18n-aria="puzzleConfiguration">
       <fieldset class="mode-switch" id="modeSwitch">
-        <legend class="sr-only">Dimension and time mode</legend>
+        <legend class="sr-only" data-i18n="dimensionTimeMode">Dimension and time mode</legend>
         <button type="button" data-mode="2-static">2D</button>
         <button type="button" data-mode="2-time">2D + Time</button>
         <button type="button" data-mode="3-static">3D</button>
@@ -64,7 +75,7 @@
     </section>
 
     <main id="workspace" class="workspace">
-      <aside class="tool-panel panel" aria-label="Puzzle tools">
+      <aside class="tool-panel panel" aria-label="Puzzle tools" data-i18n-aria="puzzleTools">
         <section>
           <h2 data-i18n="tools">Tools</h2>
           <div class="tool-grid" id="toolGrid">
@@ -88,7 +99,7 @@
 
         <section>
           <h2 data-i18n="palette">Palette</h2>
-          <div id="paletteButtons" class="palette-grid" role="radiogroup" aria-label="Color palette"></div>
+          <div id="paletteButtons" class="palette-grid" role="radiogroup" aria-label="Color palette" data-i18n-aria="colorPalette"></div>
         </section>
 
         <section>
@@ -105,9 +116,9 @@
         <section class="view-controls">
           <h2 data-i18n="view">View</h2>
           <div class="zoom-row">
-            <button type="button" id="zoomOutButton" aria-label="Zoom out">−</button>
+            <button type="button" id="zoomOutButton" aria-label="Zoom out" data-i18n-aria="zoomOut" data-i18n-title="zoomOut">−</button>
             <button type="button" id="fitViewButton" data-i18n="fit">Fit</button>
-            <button type="button" id="zoomInButton" aria-label="Zoom in">+</button>
+            <button type="button" id="zoomInButton" aria-label="Zoom in" data-i18n-aria="zoomIn" data-i18n-title="zoomIn">+</button>
           </div>
           <label class="toggle-row">
             <input type="checkbox" id="onionSkinToggle" checked>
@@ -127,13 +138,13 @@
             <h2 id="puzzleTitle">Puzzle</h2>
             <p id="puzzleDescription"></p>
           </div>
-          <div class="progress-block" aria-label="Puzzle progress">
+          <div class="progress-block" aria-label="Puzzle progress" data-i18n-aria="puzzleProgress">
             <div class="progress-label"><span id="progressText">0 / 0</span><span id="progressPercent">0%</span></div>
             <div class="progress-track"><div id="progressFill"></div></div>
           </div>
         </header>
 
-        <div class="view-tabs" id="viewTabs" role="tablist" aria-label="View mode">
+        <div class="view-tabs" id="viewTabs" role="tablist" aria-label="View mode" data-i18n-aria="viewMode">
           <button type="button" role="tab" data-view="board" class="active" data-i18n="board">Board</button>
           <button type="button" role="tab" data-view="model" data-i18n="model">Model</button>
           <button type="button" role="tab" data-view="slice" data-i18n="slice">Slice</button>
@@ -141,34 +152,34 @@
         </div>
 
         <div class="viewport-wrap" id="viewportWrap">
-          <canvas id="board2d" aria-label="Two-dimensional puzzle board"></canvas>
+          <canvas id="board2d" aria-label="Two-dimensional puzzle board" data-i18n-aria="board2dAria"></canvas>
           <div id="board3d" class="board3d" hidden></div>
           <div id="rendererNotice" class="renderer-notice" hidden role="status"></div>
           <div class="viewport-badge" id="viewportBadge">Frame 1</div>
         </div>
 
-        <section id="sliceControls" class="slice-controls" hidden aria-label="3D slice controls">
+        <section id="sliceControls" class="slice-controls" hidden aria-label="3D slice controls" data-i18n-aria="sliceControls">
           <label class="field compact">
             <span data-i18n="plane">Plane</span>
             <select id="sliceFamilySelect"></select>
           </label>
-          <button type="button" id="slicePreviousButton" aria-label="Previous slice">−</button>
-          <input id="sliceSlider" type="range" min="0" max="0" value="0" aria-label="Slice layer">
-          <button type="button" id="sliceNextButton" aria-label="Next slice">+</button>
+          <button type="button" id="slicePreviousButton" aria-label="Previous slice" data-i18n-aria="previousSlice" data-i18n-title="previousSlice">−</button>
+          <input id="sliceSlider" type="range" min="0" max="0" value="0" aria-label="Slice layer" data-i18n-aria="sliceLayer">
+          <button type="button" id="sliceNextButton" aria-label="Next slice" data-i18n-aria="nextSlice" data-i18n-title="nextSlice">+</button>
           <span id="sliceLabel">1 / 1</span>
         </section>
 
-        <section id="timelinePanel" class="timeline-panel" hidden aria-label="Time navigation">
-          <button type="button" id="previousFrameButton" aria-label="Previous frame">⟨</button>
-          <button type="button" id="playButton" aria-label="Play animation">▶</button>
-          <input id="timelineSlider" type="range" min="0" max="0" value="0" aria-label="Current time frame">
-          <button type="button" id="nextFrameButton" aria-label="Next frame">⟩</button>
+        <section id="timelinePanel" class="timeline-panel" hidden aria-label="Time navigation" data-i18n-aria="timeNavigation">
+          <button type="button" id="previousFrameButton" aria-label="Previous frame" data-i18n-aria="previousFrame" data-i18n-title="previousFrame">⟨</button>
+          <button type="button" id="playButton" aria-label="Play animation" data-i18n-title="playAnimation">▶</button>
+          <input id="timelineSlider" type="range" min="0" max="0" value="0" aria-label="Current time frame" data-i18n-aria="currentTimeFrame">
+          <button type="button" id="nextFrameButton" aria-label="Next frame" data-i18n-aria="nextFrame" data-i18n-title="nextFrame">⟩</button>
           <output id="frameLabel">1 / 1</output>
         </section>
       </section>
 
-      <aside class="clue-panel panel" aria-label="Clues and cell information">
-        <div class="clue-mode-tabs" id="clueModeTabs" role="tablist" aria-label="Clue dimension">
+      <aside class="clue-panel panel" aria-label="Clues and cell information" data-i18n-aria="cluesCellInfo">
+        <div class="clue-mode-tabs" id="clueModeTabs" role="tablist" aria-label="Clue dimension" data-i18n-aria="clueDimension">
           <button type="button" role="tab" data-clue-mode="space" class="active" data-i18n="spatialClue">Spatial clue</button>
           <button type="button" role="tab" data-clue-mode="time" data-i18n="timeClue">Time clue</button>
         </div>
@@ -180,21 +191,21 @@
               <h2 id="trackLineLabel">Y1</h2>
             </div>
             <div class="track-stepper">
-              <button type="button" id="previousTrackButton" aria-label="Previous clue line">↑</button>
-              <button type="button" id="nextTrackButton" aria-label="Next clue line">↓</button>
+              <button type="button" id="previousTrackButton" aria-label="Previous clue line" data-i18n-aria="previousClueLine" data-i18n-title="previousClueLine">↑</button>
+              <button type="button" id="nextTrackButton" aria-label="Next clue line" data-i18n-aria="nextClueLine" data-i18n-title="nextClueLine">↓</button>
             </div>
           </div>
           <label class="field">
             <span data-i18n="direction">Direction</span>
             <select id="trackFamilySelect"></select>
           </label>
-          <div id="clueChips" class="clue-chips" aria-label="Ordered colored clues"></div>
+          <div id="clueChips" class="clue-chips" aria-label="Ordered colored clues" data-i18n-aria="orderedColoredClues"></div>
           <div id="trackStatus" class="track-status"></div>
         </section>
 
         <section>
           <h3 data-i18n="orderedTrack">Ordered track</h3>
-          <div id="trackStrip" class="track-strip" role="list" aria-label="Cells on the selected clue track"></div>
+          <div id="trackStrip" class="track-strip" role="list" aria-label="Cells on the selected clue track" data-i18n-aria="selectedTrackCells"></div>
           <p class="microcopy" data-i18n="trackInstruction">Select or edit any cell here when the model is difficult to reach.</p>
         </section>
 
@@ -223,11 +234,11 @@
       </aside>
     </main>
 
-    <div class="mobile-toolbar" aria-label="Mobile puzzle tools">
+    <div class="mobile-toolbar" aria-label="Mobile puzzle tools" data-i18n-aria="mobilePuzzleTools">
       <button type="button" data-mobile-tool="paint" class="active"><span aria-hidden="true">●</span><span data-i18n="paint">Paint</span></button>
       <button type="button" data-mobile-tool="empty"><span aria-hidden="true">×</span><span data-i18n="empty">Empty</span></button>
       <button type="button" data-mobile-tool="clear"><span aria-hidden="true">○</span><span data-i18n="clear">Clear</span></button>
-      <button type="button" data-mobile-tool="orbit"><span aria-hidden="true">↻</span><span data-i18n="move">Move</span></button>
+      <button type="button" data-mobile-tool="orbit"><span aria-hidden="true">↻</span><span data-i18n="moveShort">Move</span></button>
       <button type="button" id="mobileClueButton"><span aria-hidden="true">≡</span><span data-i18n="clues">Clues</span></button>
     </div>
   </div>
@@ -242,7 +253,7 @@
           <div class="eyebrow">TopoMosaic V1</div>
           <h2 data-i18n="howToPlay">How to play</h2>
         </div>
-        <button type="submit" class="icon-button" aria-label="Close help">×</button>
+        <button type="submit" class="icon-button" aria-label="Close help" data-i18n-aria="closeHelp" data-i18n-title="closeHelp">×</button>
       </header>
       <div class="modal-content">
         <section>
@@ -287,7 +298,7 @@
     </form>
   </dialog>
 
-  <noscript>This app requires JavaScript.</noscript>
+  <noscript>TopoMosaic requires JavaScript. / TopoMosaic 需要 JavaScript。</noscript>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
