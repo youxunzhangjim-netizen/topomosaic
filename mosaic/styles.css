@@ -331,8 +331,13 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .clue-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; min-height: 54px; margin-top: 0.85rem; align-items: center; }
 .clue-chip {
   min-width: 46px; min-height: 42px; padding: 0.35rem 0.5rem; border-radius: 9px; display: inline-grid;
-  grid-template-columns: 12px auto; gap: 0.36rem; place-items: center; color: #071018; font-weight: 800;
+  grid-template-columns: auto; gap: 0.36rem; place-items: center; color: #071018; font-weight: 800;
   border: 2px solid rgba(255,255,255,.74); box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+}
+.clue-chip.color-number-clue {
+  min-width: 38px;
+  background: rgba(7,11,17,.82);
+  text-shadow: 0 1px 8px rgba(0,0,0,.6);
 }
 .clue-chip .clue-pattern { width: 12px; height: 12px; border-radius: 50%; background: repeating-linear-gradient(45deg, rgba(0,0,0,.5) 0 2px, transparent 2px 4px); }
 .empty-clue { color: var(--muted); font-style: italic; }
@@ -412,6 +417,10 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
   line-height: 1;
 }
 .clue-run-token[data-tone="dark"] { color: #fff; }
+.clue-run-token.color-number-token {
+  background: rgba(7,11,17,.78);
+  text-shadow: 0 1px 7px rgba(0,0,0,.58);
+}
 .clue-run-token.binary {
   background: #f8fafc;
   color: #071018;

@@ -864,12 +864,17 @@ class TopoMosaicApp {
       container.replaceChildren(...this.selectedTrack.clues.map((run) => {
         const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
         const chip = document.createElement('span');
-        chip.className = `clue-chip${this.gameplayMode === 'bw' ? ' binary-clue' : ''}`;
-        chip.style.background = this.gameplayMode === 'bw' ? '#f8fafc' : this.colorForValue(run.colorId);
+        chip.className = `clue-chip${this.gameplayMode === 'bw' ? ' binary-clue' : ' color-number-clue'}`;
+        if (this.gameplayMode === 'bw') {
+          chip.style.background = '#f8fafc';
+        } else {
+          const color = this.colorForValue(run.colorId);
+          chip.style.background = 'rgba(7,11,17,.82)';
+          chip.style.borderColor = color;
+          chip.style.color = color;
+        }
         chip.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
-        chip.innerHTML = this.gameplayMode === 'bw'
-          ? `<span>${run.length}</span>`
-          : `<span class="clue-pattern" aria-hidden="true"></span><span>${this.paletteSymbol(palette)}${run.length}</span>`;
+        chip.textContent = String(run.length);
         return chip;
       }));
     }
@@ -883,7 +888,7 @@ class TopoMosaicApp {
     if (this.gameplayMode === 'bw') return clues.map((run) => String(run.length)).join(' ');
     return clues.map((run) => {
       const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
-      return `${this.paletteSymbol(palette)}${run.length}`;
+      return `${this.paletteName(palette)} ${run.length}`;
     }).join(' ');
   }
 
@@ -897,11 +902,16 @@ class TopoMosaicApp {
     return clues.map((run) => {
       const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
       const token = document.createElement('span');
-      token.className = `clue-run-token${this.gameplayMode === 'bw' ? ' binary' : ''}`;
-      token.dataset.tone = this.gameplayMode === 'bw' ? 'light' : this.paletteTone(palette);
-      token.style.background = this.gameplayMode === 'bw' ? '#f8fafc' : this.colorForValue(run.colorId);
+      token.className = `clue-run-token${this.gameplayMode === 'bw' ? ' binary' : ' color-number-token'}`;
+      if (this.gameplayMode === 'bw') {
+        token.style.background = '#f8fafc';
+      } else {
+        const color = this.colorForValue(run.colorId);
+        token.style.color = color;
+        token.style.borderColor = color;
+      }
       token.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
-      token.textContent = this.gameplayMode === 'bw' ? String(run.length) : `${this.paletteSymbol(palette)}${run.length}`;
+      token.textContent = String(run.length);
       return token;
     });
   }
@@ -1091,7 +1101,7 @@ class TopoMosaicApp {
     if (this.gameplayMode === 'bw') return clues.map((run) => String(run.length)).join(' · ');
     return clues.map((run) => {
       const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
-      return `${this.paletteSymbol(palette)}${run.length}`;
+      return `${this.paletteName(palette)} ${run.length}`;
     }).join(' · ');
   }
 
