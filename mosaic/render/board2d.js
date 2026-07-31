@@ -41,6 +41,7 @@ export class Board2D {
     this.onionSkin = true;
     this.displayMode = 'color';
     this.hintedVariableId = null;
+    this.showAxisLabels = false;
     this.view = { scale: 1, offsetX: 0, offsetY: 0 };
     this.worldBounds = null;
     this.dragging = false;
@@ -127,7 +128,7 @@ export class Board2D {
     this.resize(true);
   }
 
-  update({ state, frame, selectedCellIndex, selectedTrack, tool, onionSkin, displayMode, hintedVariableId } = {}) {
+  update({ state, frame, selectedCellIndex, selectedTrack, tool, onionSkin, displayMode, hintedVariableId, showAxisLabels } = {}) {
     if (state) this.state = state;
     if (frame != null) this.frame = frame;
     if (selectedCellIndex !== undefined) this.selectedCellIndex = selectedCellIndex;
@@ -136,6 +137,7 @@ export class Board2D {
     if (onionSkin != null) this.onionSkin = onionSkin;
     if (displayMode) this.displayMode = displayMode;
     if (hintedVariableId !== undefined) this.hintedVariableId = hintedVariableId;
+    if (showAxisLabels !== undefined) this.showAxisLabels = showAxisLabels;
     this.draw();
   }
 
@@ -194,27 +196,27 @@ export class Board2D {
     if (!this.hasBoardAxisClues()) return { left: 26, top: 26, right: 26, bottom: 26 };
     const { rows, columns } = this.axisTracks();
     const compact = Math.min(width, height) < 560;
-    const tokenWidth = compact ? 21 : 25;
-    const tokenHeight = compact ? 18 : 22;
+    const tokenWidth = compact ? 11 : 13;
+    const tokenHeight = compact ? 15 : 18;
     if (this.puzzle?.lattice.kind === 'square') {
       const maxRowRuns = Math.max(1, ...rows.map((track) => track.clues.length));
       const maxColumnRuns = Math.max(1, ...columns.map((track) => track.clues.length));
       return {
-        left: Math.min(width * 0.34, 34 + maxRowRuns * (tokenWidth + 4)),
-        top: Math.min(height * 0.3, 34 + maxColumnRuns * (tokenHeight + 4)),
+        left: Math.min(width * 0.24, 22 + maxRowRuns * (tokenWidth + 1)),
+        top: Math.min(height * 0.22, 22 + maxColumnRuns * (tokenHeight + 1)),
         right: compact ? 14 : 22,
         bottom: compact ? 14 : 22,
       };
     }
 
-    const gutters = { left: compact ? 72 : 88, top: compact ? 66 : 84, right: compact ? 72 : 88, bottom: compact ? 18 : 24 };
+    const gutters = { left: compact ? 44 : 54, top: compact ? 42 : 54, right: compact ? 44 : 54, bottom: compact ? 16 : 22 };
     this.axisTrackGroups().forEach((group, index) => {
       const maxRuns = Math.max(1, ...group.tracks.map((track) => track.clues.length));
       const side = this.clueFamilySide(group.family, index);
       if (side === 'left' || side === 'right') {
-        gutters[side] = Math.min(width * 0.3, 34 + maxRuns * (tokenWidth + 4));
+        gutters[side] = Math.min(width * 0.22, 18 + maxRuns * (tokenWidth + 1));
       } else {
-        gutters[side] = Math.min(height * 0.28, 34 + maxRuns * (tokenHeight + 4));
+        gutters[side] = Math.min(height * 0.2, 18 + maxRuns * (tokenHeight + 1));
       }
     });
     return gutters;
@@ -350,105 +352,34 @@ export class Board2D {
     return this.puzzle.palette.find((entry) => entry.id === value);
   }
 
-  paletteSymbol(entry) {
-    return {
-      yellow: 'Y',
-      blue: 'B',
-      green: 'G',
-      red: 'R',
-      brown: 'E',
-      black: 'B',
-    }[entry?.key] || entry?.key?.[0]?.toUpperCase() || String(entry?.id ?? '');
-  }
-
-  paletteTone(entry) {
-    return entry?.key === 'black' || entry?.id >= 4 ? 'dark' : 'light';
-  }
-
   clueTokens(clues) {
-    if (!clues.length) return [{ text: '0', background: 'rgba(11,15,22,0.8)', ink: '#9cabc0', border: 'rgba(156,171,192,0.35)', tone: 'empty' }];
+    if (!clues.length) return [{ text: '0', ink: '#9cabc0', tone: 'empty' }];
     return clues.map((run) => {
-      const entry = this.paletteEntry(run.colorId);
       if (this.displayMode === 'bw') {
         return {
           text: String(run.length),
-          background: '#f8fafc',
-          ink: '#071018',
-          border: 'rgba(255,255,255,0.9)',
+          ink: '#edf3fb',
           tone: 'light',
         };
       }
       const color = this.valueColor(run.colorId);
       return {
         text: String(run.length),
-        background: 'rgba(7,11,17,0.84)',
         ink: color,
-        border: color,
-        tone: this.paletteTone(entry),
+        tone: 'color',
       };
     });
   }
 
-  roundedRect(context, x, y, width, height, radius) {
-    const corner = Math.min(radius, width / 2, height / 2);
-    context.beginPath();
-    context.moveTo(x + corner, y);
-    context.lineTo(x + width - corner, y);
-    context.quadraticCurveTo(x + width, y, x + width, y + corner);
-    context.lineTo(x + width, y + height - corner);
-    context.quadraticCurveTo(x + width, y + height, x + width - corner, y + height);
-    context.lineTo(x + corner, y + height);
-    context.quadraticCurveTo(x, y + height, x, y + height - corner);
-    context.lineTo(x, y + corner);
-    context.quadraticCurveTo(x, y, x + corner, y);
-    context.closePath();
-  }
-
-  traceClueTokenShape(context, x, y, width, height, shape) {
-    if (shape === 'hex') {
-      context.beginPath();
-      context.moveTo(x + width * 0.24, y + height * 0.04);
-      context.lineTo(x + width * 0.76, y + height * 0.04);
-      context.lineTo(x + width, y + height * 0.5);
-      context.lineTo(x + width * 0.76, y + height * 0.96);
-      context.lineTo(x + width * 0.24, y + height * 0.96);
-      context.lineTo(x, y + height * 0.5);
-      context.closePath();
-      return;
-    }
-    if (shape === 'triangle') {
-      context.beginPath();
-      context.moveTo(x + width * 0.5, y + height * 0.04);
-      context.lineTo(x + width * 0.97, y + height * 0.94);
-      context.lineTo(x + width * 0.03, y + height * 0.94);
-      context.closePath();
-      return;
-    }
-    this.roundedRect(context, x, y, width, height, 6);
-  }
-
-  clueTokenShape(family = '') {
-    if (this.puzzle?.lattice.kind === 'hex' || family.startsWith('hex-')) return 'hex';
-    if (this.puzzle?.lattice.kind === 'triangle' || family.startsWith('tri-')) return 'triangle';
-    return 'square';
-  }
-
-  drawClueToken(context, token, x, y, width, height, active = false, shape = 'square') {
+  drawClueToken(context, token, x, y, width, height, active = false) {
     context.save();
-    this.traceClueTokenShape(context, x, y, width, height, shape);
-    context.fillStyle = token.background || token.color || 'rgba(11,15,22,0.8)';
-    context.fill();
-    context.lineWidth = active ? 2 : 1;
-    context.strokeStyle = active ? '#8be9ff' : token.border || 'rgba(255,255,255,0.5)';
-    context.stroke();
-    context.fillStyle = token.ink || (token.tone === 'dark' ? '#ffffff' : token.tone === 'empty' ? '#9cabc0' : '#071018');
+    context.fillStyle = active ? '#8be9ff' : token.ink || '#edf3fb';
     context.shadowColor = token.tone === 'empty' ? 'transparent' : 'rgba(0,0,0,0.7)';
-    context.shadowBlur = token.background === '#f8fafc' ? 0 : 5;
-    context.font = `800 ${Math.max(10, Math.min(13, height * 0.58))}px Inter, system-ui, sans-serif`;
+    context.shadowBlur = active ? 8 : 4;
+    context.font = `900 ${Math.max(11, Math.min(14, height * 0.78))}px Inter, system-ui, sans-serif`;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    const textY = shape === 'triangle' ? y + height * 0.62 : y + height / 2 + 0.5;
-    context.fillText(token.text, x + width / 2, textY, width - 3);
+    context.fillText(token.text, x + width / 2, y + height / 2 + 0.5, width + 2);
     context.restore();
   }
 
@@ -460,9 +391,9 @@ export class Board2D {
     const width = this.canvas.width / (this.pixelRatio || 1);
     const height = this.canvas.height / (this.pixelRatio || 1);
     const compact = Math.min(width, height) < 560;
-    const tokenWidth = compact ? 21 : 25;
-    const tokenHeight = compact ? 18 : 22;
-    const gap = compact ? 3 : 4;
+    const tokenWidth = compact ? 11 : 13;
+    const tokenHeight = compact ? 15 : 18;
+    const gap = 1;
     const [leftA, topA] = this.worldToScreen([this.worldBounds.minX, this.worldBounds.minY]);
     const [rightA, bottomA] = this.worldToScreen([this.worldBounds.maxX, this.worldBounds.maxY]);
     const boardLeft = Math.min(leftA, rightA);
@@ -475,8 +406,10 @@ export class Board2D {
     context.fillStyle = 'rgba(156,171,192,0.9)';
     context.textBaseline = 'middle';
     context.textAlign = 'center';
-    context.fillText('X', boardLeft - 14, boardTop - 14);
-    context.fillText('Y', boardLeft - 14, boardTop + 12);
+    if (this.showAxisLabels) {
+      context.fillText('X', boardLeft - 14, boardTop - 14);
+      context.fillText('Y', boardLeft - 14, boardTop + 12);
+    }
 
     for (const track of rows) {
       const tokens = this.clueTokens(track.clues);
@@ -485,7 +418,7 @@ export class Board2D {
       const totalWidth = tokens.length * tokenWidth + (tokens.length - 1) * gap;
       const startX = boardLeft - 12 - totalWidth;
       tokens.forEach((token, index) => {
-        this.drawClueToken(context, token, startX + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, track.id === selectedId, 'square');
+        this.drawClueToken(context, token, startX + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, track.id === selectedId);
       });
     }
 
@@ -496,7 +429,7 @@ export class Board2D {
       const totalHeight = tokens.length * tokenHeight + (tokens.length - 1) * gap;
       const startY = boardTop - 12 - totalHeight;
       tokens.forEach((token, index) => {
-        this.drawClueToken(context, token, x, startY + index * (tokenHeight + gap), tokenWidth, tokenHeight, track.id === selectedId, 'square');
+        this.drawClueToken(context, token, x, startY + index * (tokenHeight + gap), tokenWidth, tokenHeight, track.id === selectedId);
       });
     }
 
@@ -536,9 +469,9 @@ export class Board2D {
     const width = this.canvas.width / (this.pixelRatio || 1);
     const height = this.canvas.height / (this.pixelRatio || 1);
     const compact = Math.min(width, height) < 560;
-    const tokenWidth = compact ? 21 : 25;
-    const tokenHeight = compact ? 18 : 22;
-    const gap = compact ? 3 : 4;
+    const tokenWidth = compact ? 11 : 13;
+    const tokenHeight = compact ? 15 : 18;
+    const gap = 1;
     const labelGap = compact ? 11 : 14;
     const board = this.boardScreenBounds();
     const boardWidth = Math.max(1, board.right - board.left);
@@ -555,12 +488,13 @@ export class Board2D {
       const side = this.clueFamilySide(group.family, groupIndex);
       const tracks = group.tracks;
       const axis = this.familyShortLabel(group.family);
-      const shape = this.clueTokenShape(group.family);
       const labelX = side === 'left' ? board.left - labelGap : side === 'right' ? board.right + labelGap : board.left - labelGap;
       const labelY = side === 'top' ? board.top - labelGap : side === 'bottom' ? board.bottom + labelGap : board.top - labelGap;
-      context.textAlign = 'center';
-      context.fillStyle = 'rgba(156,171,192,0.92)';
-      context.fillText(axis, labelX, labelY);
+      if (this.showAxisLabels) {
+        context.textAlign = 'center';
+        context.fillStyle = 'rgba(156,171,192,0.92)';
+        context.fillText(axis, labelX, labelY);
+      }
 
       tracks.forEach((track) => {
         const tokens = this.clueTokens(track.clues);
@@ -575,21 +509,25 @@ export class Board2D {
           const totalWidth = tokens.length * tokenWidth + (tokens.length - 1) * gap;
           const x = side === 'left' ? board.left - 12 - totalWidth : board.right + 12;
           const y = Math.max(board.top, Math.min(board.bottom - tokenHeight, center[1] - tokenHeight / 2));
-          context.textAlign = side === 'left' ? 'left' : 'right';
-          context.fillStyle = active ? '#8be9ff' : 'rgba(156,171,192,0.88)';
-          context.fillText(track.lineLabel, side === 'left' ? x + totalWidth + 5 : x - 5, y + tokenHeight / 2);
+          if (this.showAxisLabels) {
+            context.textAlign = side === 'left' ? 'left' : 'right';
+            context.fillStyle = active ? '#8be9ff' : 'rgba(156,171,192,0.88)';
+            context.fillText(track.lineLabel, side === 'left' ? x + totalWidth + 5 : x - 5, y + tokenHeight / 2);
+          }
           tokens.forEach((token, index) => {
-            this.drawClueToken(context, token, x + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, active, shape);
+            this.drawClueToken(context, token, x + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, active);
           });
         } else {
           const totalHeight = tokens.length * tokenHeight + (tokens.length - 1) * gap;
           const x = Math.max(board.left, Math.min(board.right - tokenWidth, center[0] - tokenWidth / 2));
           const y = side === 'top' ? board.top - 12 - totalHeight : board.bottom + 12;
-          context.textAlign = 'center';
-          context.fillStyle = active ? '#8be9ff' : 'rgba(156,171,192,0.88)';
-          context.fillText(track.lineLabel, x + tokenWidth / 2, side === 'top' ? y + totalHeight + 8 : y - 8);
+          if (this.showAxisLabels) {
+            context.textAlign = 'center';
+            context.fillStyle = active ? '#8be9ff' : 'rgba(156,171,192,0.88)';
+            context.fillText(track.lineLabel, x + tokenWidth / 2, side === 'top' ? y + totalHeight + 8 : y - 8);
+          }
           tokens.forEach((token, index) => {
-            this.drawClueToken(context, token, x, y + index * (tokenHeight + gap), tokenWidth, tokenHeight, active, shape);
+            this.drawClueToken(context, token, x, y + index * (tokenHeight + gap), tokenWidth, tokenHeight, active);
           });
         }
       });

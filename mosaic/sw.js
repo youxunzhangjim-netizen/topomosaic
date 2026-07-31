@@ -1,4 +1,4 @@
-const CACHE = 'topomosaic-v1.0.9';
+const CACHE = 'topomosaic-v1.0.10';
 const CORE = [
   './', './index.html', './styles.css', './app.js', './icon.svg', './manifest.webmanifest',
   './core/clues.js', './core/lattices.js', './core/puzzle.js', './core/solver.js', './core/storage.js',

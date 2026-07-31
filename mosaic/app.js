@@ -46,6 +46,7 @@ const I18N = {
     slice: 'Layer', track: 'Path', plane: 'Layer axis', spatialClue: 'Space path', timeClue: 'Time path',
     direction: 'Path family', orderedTrack: 'Path strip', trackInstruction: 'Mark this path directly when the mosaic or lattice is hard to reach.',
     axisClueMap: 'Axis clue map', currentFrameClues: (frame) => `Frame ${frame}`, timeAxisClues: 'Time paths',
+    showClueMap: 'Show', hideClueMap: 'Hide', axisLabels: 'Labels', showAxisLabels: 'Show labels', hideAxisLabels: 'Hide labels',
     clueGuideSquare: 'Square clues use the standard frame: top arrays are X columns; left arrays are Y rows.',
     clueGuideHex: 'Hex clues use three edge bands. Q, R, and S are the three hex-axis path families.',
     clueGuideTriangle: 'Triangle clues use three edge bands. A, B, and C are the three triangular weave families.',
@@ -106,6 +107,7 @@ const I18N = {
     plane: '分層軸', spatialClue: '空間路徑', timeClue: '時間路徑', direction: '路徑族', orderedTrack: '路徑帶',
     trackInstruction: '當馬賽克或晶格不易點選時，可直接在這條路徑上標記。', axisClueMap: '軸向線索圖',
     currentFrameClues: (frame) => `第 ${frame} 幀`, timeAxisClues: '時間路徑',
+    showClueMap: '顯示', hideClueMap: '隱藏', axisLabels: '標籤', showAxisLabels: '顯示標籤', hideAxisLabels: '隱藏標籤',
     clueGuideSquare: '方格使用標準外框：上方陣列是 X 直行，左側陣列是 Y 橫列。',
     clueGuideHex: '六角格使用三個邊帶。Q、R、S 是三個六角軸向路徑族。',
     clueGuideTriangle: '三角格使用三個邊帶。A、B、C 是三個三角編織路徑族。',
@@ -236,6 +238,9 @@ class TopoMosaicApp {
     this.redoStack = [];
     this.strictMode = false;
     this.onionSkin = true;
+    this.axisLabelsVisible = false;
+    this.quickClueMapExpanded = false;
+    this.sideClueMapExpanded = false;
     this.playTimer = null;
     this.saveTimer = null;
     this.toastTimer = null;
@@ -308,12 +313,7 @@ class TopoMosaicApp {
     return entry?.key === 'black' || entry?.id >= 4 ? 'dark' : 'light';
   }
 
-  clueShapeClass(family = this.selectedTrack?.family) {
-    const kind = this.puzzle?.lattice.kind;
-    if (kind === 'hex' || family?.startsWith('hex-')) return 'shape-hex';
-    if (kind === 'triangle' || family?.startsWith('tri-')) return 'shape-triangle';
-    return 'shape-square';
-  }
+  clueShapeClass() { return ''; }
 
   clueGuideText() {
     const timeGuide = this.clueMode === 'time' && this.puzzle?.hasTime;
@@ -327,6 +327,39 @@ class TopoMosaicApp {
           triangle: 'clueGuideTriangle',
         }[this.puzzle?.lattice.kind] || 'clueGuideSquare';
     return `${this.t(baseKey)} ${this.t(this.gameplayMode === 'bw' ? 'clueGuideBinary' : 'clueGuideColor')}`;
+  }
+
+  toggleAxisLabels() {
+    this.axisLabelsVisible = !this.axisLabelsVisible;
+    this.syncAxisLabelToggle();
+    this.updateRenderer();
+  }
+
+  syncAxisLabelToggle() {
+    const button = $('#axisLabelToggleButton');
+    if (!button) return;
+    button.classList.toggle('active', this.axisLabelsVisible);
+    button.setAttribute('aria-pressed', String(this.axisLabelsVisible));
+    const key = this.axisLabelsVisible ? 'hideAxisLabels' : 'showAxisLabels';
+    button.textContent = this.t('axisLabels');
+    button.title = this.t(key);
+    button.setAttribute('aria-label', this.t(key));
+  }
+
+  toggleQuickClueMap() {
+    this.quickClueMapExpanded = !this.quickClueMapExpanded;
+    this.renderQuickClueMap();
+  }
+
+  toggleSideClueMap() {
+    this.sideClueMapExpanded = !this.sideClueMapExpanded;
+    this.renderClueMap();
+  }
+
+  syncClueMapToggle(button, expanded) {
+    if (!button) return;
+    button.textContent = this.t(expanded ? 'hideClueMap' : 'showClueMap');
+    button.setAttribute('aria-expanded', String(expanded));
   }
 
   partName(part) {
@@ -349,6 +382,9 @@ class TopoMosaicApp {
     $('#latticeSelect').addEventListener('change', () => this.populatePuzzleSelect());
     $('#puzzleSelect').addEventListener('change', () => this.loadPuzzle(findPuzzle($('#puzzleSelect').value)));
     $('#gameplayModeSelect').addEventListener('change', (event) => this.setGameplayMode(event.target.value));
+    $('#axisLabelToggleButton').addEventListener('click', () => this.toggleAxisLabels());
+    $('#quickClueToggleButton').addEventListener('click', () => this.toggleQuickClueMap());
+    $('#clueMapToggleButton').addEventListener('click', () => this.toggleSideClueMap());
     $$('#toolGrid [data-tool]').forEach((button) => button.addEventListener('click', () => this.setTool(button.dataset.tool)));
     $$('[data-mobile-tool]').forEach((button) => button.addEventListener('click', () => this.setTool(button.dataset.mobileTool)));
     $('#mobileClueButton').addEventListener('click', () => document.body.classList.toggle('clue-open'));
@@ -482,6 +518,9 @@ class TopoMosaicApp {
     this.tool = 'paint';
     this.clueMode = 'space';
     this.viewMode = puzzle.dimension === 2 ? 'board' : 'model';
+    this.axisLabelsVisible = false;
+    this.quickClueMapExpanded = false;
+    this.sideClueMapExpanded = false;
     this.clearHint({ redraw: false });
     this.history = [];
     this.redoStack = [];
@@ -535,6 +574,7 @@ class TopoMosaicApp {
       button.hidden = is3d ? button.dataset.view === 'board' : button.dataset.view !== 'board';
     });
     $('#timelinePanel').hidden = !this.puzzle.hasTime;
+    $('#axisLabelToggleButton').hidden = is3d;
     $('#clueModeTabs [data-clue-mode="time"]').disabled = !this.puzzle.hasTime;
     $('#temporalSummaryRow').hidden = !this.puzzle.hasTime;
     $('#onionSkinToggle').closest('.toggle-row').hidden = !this.puzzle.hasTime;
@@ -555,6 +595,7 @@ class TopoMosaicApp {
     });
     [...$('#latticeSelect').options].forEach((option) => { option.textContent = this.latticeName(option.value); });
     if (this.rendererNoticeMode) $('#rendererNotice').textContent = this.t(this.rendererNoticeMode);
+    this.syncAxisLabelToggle();
     this.renderPalette();
     this.renderTrackNavigation();
     this.renderSemanticLegend();
@@ -586,6 +627,9 @@ class TopoMosaicApp {
     $$('[data-i18n-title]').forEach((element) => { element.title = this.t(element.dataset.i18nTitle); });
     this.board3d?.renderer?.domElement?.setAttribute('aria-label', this.t('board3dAria'));
     this.syncGameplayModeUi();
+    this.syncAxisLabelToggle();
+    this.syncClueMapToggle($('#quickClueToggleButton'), this.quickClueMapExpanded);
+    this.syncClueMapToggle($('#clueMapToggleButton'), this.sideClueMapExpanded);
     this.renderPlaybackButton();
   }
 
@@ -857,7 +901,7 @@ class TopoMosaicApp {
     const data = {
       state: this.state, frame: this.currentFrame, selectedCellIndex: this.selectedCellIndex,
       selectedTrack: this.selectedTrack, tool: this.tool, onionSkin: this.onionSkin, viewMode: this.viewMode,
-      displayMode: this.gameplayMode, hintedVariableId: this.hintedVariableId,
+      displayMode: this.gameplayMode, hintedVariableId: this.hintedVariableId, showAxisLabels: this.axisLabelsVisible,
     };
     if (this.puzzle.dimension === 2) this.board2d.update(data);
     else this.board3d?.update(data);
@@ -901,11 +945,9 @@ class TopoMosaicApp {
         const chip = document.createElement('span');
         chip.className = `clue-chip ${this.clueShapeClass()}${this.gameplayMode === 'bw' ? ' binary-clue' : ' color-number-clue'}`;
         if (this.gameplayMode === 'bw') {
-          chip.style.background = '#f8fafc';
+          chip.style.color = '';
         } else {
           const color = this.colorForValue(run.colorId);
-          chip.style.background = 'rgba(7,11,17,.82)';
-          chip.style.borderColor = color;
           chip.style.color = color;
         }
         chip.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
@@ -940,11 +982,10 @@ class TopoMosaicApp {
       const token = document.createElement('span');
       token.className = `clue-run-token ${shapeClass}${this.gameplayMode === 'bw' ? ' binary' : ' color-number-token'}`;
       if (this.gameplayMode === 'bw') {
-        token.style.background = '#f8fafc';
+        token.style.color = '';
       } else {
         const color = this.colorForValue(run.colorId);
         token.style.color = color;
-        token.style.borderColor = color;
       }
       token.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
       token.textContent = String(run.length);
@@ -970,6 +1011,9 @@ class TopoMosaicApp {
     if (!container || !this.puzzle) return;
     const { timeMode, groups } = this.clueMapTracks();
     $('#clueMapFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
+    $('#clueMapSection').classList.toggle('collapsed', !this.sideClueMapExpanded);
+    container.hidden = !this.sideClueMapExpanded;
+    this.syncClueMapToggle($('#clueMapToggleButton'), this.sideClueMapExpanded);
     container.replaceChildren(...groups.map((group) => {
       const familyCard = document.createElement('section');
       familyCard.className = 'clue-family-card';
@@ -1008,6 +1052,9 @@ class TopoMosaicApp {
     if (!section || !container || !this.puzzle) return;
     const { timeMode, groups } = this.clueMapTracks();
     section.hidden = !groups.length;
+    section.classList.toggle('collapsed', !this.quickClueMapExpanded);
+    container.hidden = !this.quickClueMapExpanded;
+    this.syncClueMapToggle($('#quickClueToggleButton'), this.quickClueMapExpanded);
     $('#quickClueFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
     $('#quickClueGuide').textContent = this.clueGuideText();
     container.replaceChildren(...groups.map((group) => {
