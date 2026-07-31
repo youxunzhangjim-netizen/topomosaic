@@ -27,14 +27,6 @@ function colorWithAlpha(color, alpha) {
   return `rgba(${red},${green},${blue},${alpha})`;
 }
 
-const MONO_COLORS = {
-  1: '#f5f7fa',
-  2: '#d6dce5',
-  3: '#aeb8c7',
-  4: '#7f8a9c',
-  5: '#4f5a6a',
-};
-
 export class Board2D {
   constructor(canvas, callbacks = {}) {
     this.canvas = canvas;
@@ -220,10 +212,10 @@ export class Board2D {
   }
 
   valueColor(value, alpha = 1) {
-    if (this.displayMode === 'mono') {
-      if (value === UNKNOWN) return `rgba(216,223,234,${0.18 * alpha})`;
-      if (value === EMPTY) return `rgba(9,13,19,${0.92 * alpha})`;
-      return colorWithAlpha(MONO_COLORS[value] || '#f7f9fc', alpha);
+    if (this.displayMode === 'bw') {
+      if (value === UNKNOWN) return `rgba(216,223,234,${0.62 * alpha})`;
+      if (value === EMPTY) return `rgba(248,250,252,${alpha})`;
+      return `rgba(3,5,8,${alpha})`;
     }
     if (value === UNKNOWN) return `rgba(44,54,70,${alpha})`;
     if (value === EMPTY) return `rgba(18,23,32,${alpha})`;
@@ -243,7 +235,7 @@ export class Board2D {
     screen.forEach(([x, y], index) => (index ? context.lineTo(x, y) : context.moveTo(x, y)));
     context.closePath();
     context.clip();
-    const useLightInk = this.displayMode === 'mono' && paletteEntry?.id >= 4;
+    const useLightInk = this.displayMode === 'bw' || paletteEntry?.id >= 4;
     context.strokeStyle = useLightInk ? 'rgba(255,255,255,0.38)' : 'rgba(4,10,18,0.3)';
     context.fillStyle = useLightInk ? 'rgba(255,255,255,0.44)' : 'rgba(4,10,18,0.34)';
     context.lineWidth = 1;
@@ -335,7 +327,7 @@ export class Board2D {
       }
 
       context.strokeStyle = value === EMPTY
-        ? `rgba(102,119,144,${0.42 * alpha})`
+        ? (this.displayMode === 'bw' ? `rgba(4,10,18,${0.62 * alpha})` : `rgba(102,119,144,${0.42 * alpha})`)
         : `rgba(130,151,180,${0.55 * alpha})`;
       context.lineWidth = Math.max(1, this.view.scale * 0.025);
       context.stroke();
@@ -343,7 +335,9 @@ export class Board2D {
       if (value === EMPTY) {
         const [cx, cy] = this.worldToScreen(cell.position);
         const size = Math.min(7, this.view.scale * 0.16);
-        context.strokeStyle = `rgba(144,160,183,${0.62 * alpha})`;
+        context.strokeStyle = this.displayMode === 'bw'
+          ? `rgba(4,10,18,${0.7 * alpha})`
+          : `rgba(144,160,183,${0.62 * alpha})`;
         context.lineWidth = 1.5;
         context.beginPath();
         context.moveTo(cx - size, cy - size); context.lineTo(cx + size, cy + size);

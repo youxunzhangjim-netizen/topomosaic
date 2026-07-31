@@ -7,6 +7,9 @@ import {
   minimumLineLength,
 } from '../mosaic/core/clues.js';
 import { buildLattice } from '../mosaic/core/lattices.js';
+import { buildCatalog } from '../mosaic/data/puzzles.js';
+import { createBlackWhitePuzzle, createInitialState, solverPayload } from '../mosaic/core/puzzle.js';
+import { solvePuzzle } from '../mosaic/core/solver.js';
 
 test('encodeRuns keeps ordered colored runs and ignores empty cells', () => {
   assert.deepEqual(
@@ -64,6 +67,19 @@ test('triangle pictures render in a roughly square display footprint', () => {
   const height = Math.max(...points.map(([, y]) => y)) - Math.min(...points.map(([, y]) => y));
   const aspect = width / height;
   assert.ok(aspect > 0.85 && aspect < 1.35, `triangle aspect ${aspect}`);
+});
+
+test('black-white gameplay mode collapses colors and recomputes standard clues', () => {
+  const source = buildCatalog().find((puzzle) => puzzle.id === 'square-sunflower');
+  const puzzle = createBlackWhitePuzzle(source);
+  assert.equal(puzzle.id, 'square-sunflower--bw');
+  assert.deepEqual(puzzle.palette.map((entry) => entry.key), ['black']);
+  assert.ok(puzzle.solution.every((value, index) => value === (source.solution[index] > EMPTY ? 1 : EMPTY)));
+  assert.ok(puzzle.tracks.every((track) => track.clues.every((run) => run.colorId === 1)));
+
+  const result = solvePuzzle(solverPayload(puzzle), createInitialState(puzzle), { maxSolutions: 2 });
+  assert.equal(result.unique, true);
+  assert.deepEqual(result.firstSolution, puzzle.solution);
 });
 
 test('FCC, BCC, and HCP create finite cells and non-empty ordered tracks', () => {

@@ -127,6 +127,26 @@ export function createInitialState(puzzle) {
   return puzzle.solution.map((value, variableId) => (puzzle.givens[variableId] ? value : UNKNOWN));
 }
 
+export function createBlackWhitePuzzle(puzzle) {
+  const solution = puzzle.solution.map((value) => (value > EMPTY ? 1 : EMPTY));
+  const palette = [{ id: 1, key: 'black', name: 'Black', color: '#05070a', pattern: 'solid' }];
+  const tracks = puzzle.tracks.map((track) => ({
+    ...track,
+    clues: encodeRuns(track.variables.map((variableId) => solution[variableId])),
+  }));
+
+  return {
+    ...puzzle,
+    id: `${puzzle.id}--bw`,
+    sourceId: puzzle.id,
+    gameplayMode: 'bw',
+    palette,
+    solution,
+    tracks,
+    semanticParts: puzzle.semanticParts.map((part) => ({ ...part, colorId: 1 })),
+  };
+}
+
 export function variableIdFor(puzzle, frame, cellIndex) {
   return frame * puzzle.lattice.cells.length + cellIndex;
 }

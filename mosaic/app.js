@@ -1,5 +1,6 @@
 import { EMPTY, UNKNOWN } from './core/clues.js';
 import {
+  createBlackWhitePuzzle,
   createInitialState,
   decodeVariableId,
   isComplete,
@@ -17,14 +18,7 @@ import { Board2D } from './render/board2d.js';
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-const DISPLAY_MODE_STORAGE_KEY = 'topomosaic:displayMode';
-const MONO_SWATCHES = {
-  1: '#f5f7fa',
-  2: '#d6dce5',
-  3: '#aeb8c7',
-  4: '#7f8a9c',
-  5: '#4f5a6a',
-};
+const GAMEPLAY_MODE_STORAGE_KEY = 'topomosaic:gameplayMode';
 
 const I18N = {
   en: {
@@ -43,7 +37,8 @@ const I18N = {
     cluesCellInfo: 'Clues and cell information', clueDimension: 'Clue dimension', previousClueLine: 'Previous clue line',
     nextClueLine: 'Next clue line', orderedColoredClues: 'Ordered colored clues', selectedTrackCells: 'Cells on the selected clue track',
     mobilePuzzleTools: 'Mobile puzzle tools', closeHelp: 'Close help',
-    tagline: 'Spatial & temporal colored logic', lattice: 'Lattice', puzzle: 'Puzzle', displayStyle: 'Display', colorMode: 'Color', monoMode: 'Black & white',
+    tagline: 'Spatial & temporal colored logic', lattice: 'Lattice', puzzle: 'Puzzle',
+    gameKind: 'Picture type', colorPicture: 'Color picture', blackWhitePicture: 'Black & white picture',
     tools: 'Tools', paint: 'Draw', empty: 'Empty', clear: 'Clean', inspect: 'Inspect', move: 'Move / Orbit', moveShort: 'Move', palette: 'Palette', actions: 'Actions',
     undo: 'Undo', redo: 'Redo', hint: 'Hint', check: 'Check', reset: 'Reset', view: 'View', fit: 'Fit',
     onionSkin: 'Previous-frame ghost', strictMode: 'Immediate mistake warning', board: 'Board', model: 'Model',
@@ -52,6 +47,8 @@ const I18N = {
     selectedCell: 'Selected cell', state: 'State', memberships: 'Spatial tracks', temporalRun: 'Temporal clue',
     semanticPart: 'Semantic part', modelParts: 'Model parts', whyThisLattice: 'Why this lattice?', clues: 'Clues',
     howToPlay: 'How to play', sharedRule: 'One rule across every geometry',
+    pictureTypes: 'Two picture types',
+    pictureTypesText: 'Color picture keeps different colors in the clue runs. Black & white picture converts every non-empty picture block into one filled block and uses standard number clues.',
     sharedRuleText: 'Each clue is an ordered list of colored runs. [Yellow 2] [Blue 3] means two connected yellow cells followed later—or immediately, because the colors differ—by three connected blue cells. Runs of the same color require at least one empty cell between them.',
     timeRule: 'Time is a real clue direction', timeRuleText: 'In +Time modes, spatial clues apply inside each frame. Selecting one cell also reveals its ordered run through all frames. The timeline is therefore part of the logic, not a countdown.',
     threeDViews: 'Three complementary 3D views', threeDViewsText: 'Model gives context, Slice exposes internal layers, and Track isolates exactly one clue line. Use Draw, Empty, or Clean for editing; use Move / Orbit when you want camera control.',
@@ -59,7 +56,7 @@ const I18N = {
     orbitCamera: 'Move / orbit', undoRedo: 'Undo / redo', changeFrame: 'Previous / next frame', startPlaying: 'Start playing',
     completed: 'Puzzle completed', replayAnimation: 'Replay animation', nextPuzzle: 'Next puzzle', close: 'Close',
     unknown: 'Unknown', noPart: 'None', hidden: 'Hidden', solved: 'Clue satisfied', incomplete: 'Clue incomplete',
-    noRuns: 'No colored cells', given: 'Given', frame: 'Frame', temporal: 'Time', loading3d: 'Loading the 3D lattice viewer…',
+    noRuns: 'No colored cells', noFilledCells: 'No filled cells', given: 'Given', frame: 'Frame', temporal: 'Time', loading3d: 'Loading the 3D lattice viewer…',
     rendererFallback: 'The 3D library could not load. The ordered Track panel remains fully playable; serve the app online or install dependencies to restore the model viewer.',
     hintApplied: 'One logically forced cell was filled.', hintAppliedDetailed: (cell, value) => `Hint filled ${cell} as ${value}.`, noHint: 'No forced move is available from the current state.',
     contradiction: 'The current marks contradict at least one clue. Undo or clear a recent mark.',
@@ -89,7 +86,8 @@ const I18N = {
     cluesCellInfo: '線索與格子資訊', clueDimension: '線索維度', previousClueLine: '上一條線索',
     nextClueLine: '下一條線索', orderedColoredClues: '有序彩色線索', selectedTrackCells: '目前線索路徑上的格子',
     mobilePuzzleTools: '手機謎題工具', closeHelp: '關閉說明',
-    tagline: '跨空間與時間的彩色邏輯', lattice: '晶格／鋪砌', puzzle: '關卡', displayStyle: '顯示', colorMode: '彩色', monoMode: '黑白',
+    tagline: '跨空間與時間的彩色邏輯', lattice: '晶格／鋪砌', puzzle: '關卡',
+    gameKind: '圖片類型', colorPicture: '彩色圖片', blackWhitePicture: '黑白圖片',
     tools: '工具', paint: '繪製', empty: '標記空格', clear: '清乾淨', inspect: '檢視', move: '移動／旋轉', moveShort: '移動', palette: '色盤', actions: '操作',
     undo: '復原', redo: '重做', hint: '提示', check: '檢查', reset: '重設', view: '視圖', fit: '置中',
     onionSkin: '顯示前一幀殘影', strictMode: '立即提示錯誤', board: '盤面', model: '模型', slice: '切片', track: '路徑',
@@ -97,6 +95,8 @@ const I18N = {
     trackInstruction: '模型內部不易選取時，可直接在這裡選擇或編輯任一格。', selectedCell: '目前格子', state: '狀態',
     memberships: '所屬空間路徑', temporalRun: '時間線索', semanticPart: '語意部件', modelParts: '模型部件',
     whyThisLattice: '此晶格的意義', clues: '線索', howToPlay: '玩法說明', sharedRule: '所有幾何共用一套規則',
+    pictureTypes: '兩種圖片類型',
+    pictureTypesText: '彩色圖片會保留不同顏色的連續線索。黑白圖片會把所有非空白圖塊轉成同一種填滿格，並使用標準數字線索。',
     sharedRuleText: '每條線索都是依序排列的彩色連續區段。[黃 2] [藍 3] 表示兩格連續黃色，之後出現三格連續藍色；因顏色不同，兩段可以直接相接。相同顏色的兩段之間至少要有一格空白。',
     timeRule: '時間是真正的線索方向', timeRuleText: '在「+時間」模式，每一幀有自己的空間線索；選取一格後，也會看到它跨越所有時間幀的有序線索。因此時間軸參與推理，不是倒數計時。',
     threeDViews: '三種互補的 3D 視圖', threeDViewsText: '模型視圖提供整體脈絡，切片視圖揭露內部，路徑視圖只保留一條線索線。繪製、空格與清乾淨負責編輯；需要控制鏡頭時切換到移動／旋轉。',
@@ -104,6 +104,7 @@ const I18N = {
     undoRedo: '復原／重做', changeFrame: '上一幀／下一幀', startPlaying: '開始遊玩', completed: '關卡完成',
     replayAnimation: '重播動畫', nextPuzzle: '下一關', close: '關閉', unknown: '未知', noPart: '無', hidden: '尚未揭示',
     solved: '線索已完成', incomplete: '線索尚未完成', noRuns: '沒有著色格', given: '已知格', frame: '時間幀', temporal: '時間',
+    noFilledCells: '沒有填滿格',
     loading3d: '正在載入 3D 晶格檢視器…', rendererFallback: '3D 函式庫載入失敗；右側的有序路徑仍可完整解題。以網路伺服器開啟或安裝相依套件後即可恢復模型視圖。',
     hintApplied: '已填入一個由目前線索必然推出的格子。', hintAppliedDetailed: (cell, value) => `提示已將 ${cell} 填為${value}。`, noHint: '目前狀態沒有可直接推出的下一格。',
     contradiction: '目前標記與至少一條線索矛盾，請復原或清除最近的操作。', checkPerfect: '所有已決定的格子都正確，請繼續完成其餘未知格。',
@@ -129,6 +130,7 @@ const PALETTE_LABELS = {
     green: { name: 'Leaf green', symbol: 'G' },
     red: { name: 'Warm red', symbol: 'R' },
     brown: { name: 'Earth brown', symbol: 'E' },
+    black: { name: 'Black', symbol: 'B' },
   },
   zh: {
     yellow: { name: '向日黃', symbol: '黃' },
@@ -136,6 +138,7 @@ const PALETTE_LABELS = {
     green: { name: '葉綠', symbol: '綠' },
     red: { name: '暖紅', symbol: '紅' },
     brown: { name: '土棕', symbol: '棕' },
+    black: { name: '黑色', symbol: '黑' },
   },
 };
 
@@ -197,7 +200,11 @@ class TopoMosaicApp {
     this.tool = 'paint';
     this.clueMode = 'space';
     this.viewMode = 'board';
-    this.displayMode = localStorage.getItem(DISPLAY_MODE_STORAGE_KEY) === 'mono' ? 'mono' : 'color';
+    const requestedGameplayMode = new URLSearchParams(location.search).get('rules');
+    const storedGameplayMode = localStorage.getItem(GAMEPLAY_MODE_STORAGE_KEY)
+      || (localStorage.getItem('topomosaic:displayMode') === 'mono' ? 'bw' : null);
+    this.gameplayMode = (requestedGameplayMode || storedGameplayMode) === 'bw' ? 'bw' : 'color';
+    this.sourcePuzzle = null;
     this.selectedCellIndex = null;
     this.selectedTrack = null;
     this.hintedVariableId = null;
@@ -293,7 +300,7 @@ class TopoMosaicApp {
     $$('#modeSwitch [data-mode]').forEach((button) => button.addEventListener('click', () => this.setMode(button.dataset.mode)));
     $('#latticeSelect').addEventListener('change', () => this.populatePuzzleSelect());
     $('#puzzleSelect').addEventListener('change', () => this.loadPuzzle(findPuzzle($('#puzzleSelect').value)));
-    $('#displayModeSelect').addEventListener('change', (event) => this.setDisplayMode(event.target.value));
+    $('#gameplayModeSelect').addEventListener('change', (event) => this.setGameplayMode(event.target.value));
     $$('#toolGrid [data-tool]').forEach((button) => button.addEventListener('click', () => this.setTool(button.dataset.tool)));
     $$('[data-mobile-tool]').forEach((button) => button.addEventListener('click', () => this.setTool(button.dataset.mobileTool)));
     $('#mobileClueButton').addEventListener('click', () => document.body.classList.toggle('clue-open'));
@@ -409,9 +416,13 @@ class TopoMosaicApp {
     if (puzzle) this.loadPuzzle(puzzle);
   }
 
-  async loadPuzzle(puzzle) {
-    if (!puzzle) return;
+  async loadPuzzle(sourcePuzzle) {
+    if (!sourcePuzzle) return;
     this.stopPlayback();
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    this.sourcePuzzle = sourcePuzzle.sourceId ? findPuzzle(sourcePuzzle.sourceId) || sourcePuzzle : sourcePuzzle;
+    const puzzle = this.gameplayMode === 'bw' ? createBlackWhitePuzzle(this.sourcePuzzle) : this.sourcePuzzle;
     this.puzzle = puzzle;
     const saved = loadProgress(puzzle);
     this.state = saved?.state?.slice() || createInitialState(puzzle);
@@ -429,7 +440,7 @@ class TopoMosaicApp {
     this.selectedCellIndex = Math.floor(puzzle.lattice.cells.length / 2);
     this.activeFamily = puzzle.lattice.tracks[0]?.family || null;
     this.selectBestTrack();
-    $('#puzzleSelect').value = puzzle.id;
+    $('#puzzleSelect').value = this.sourcePuzzle.id;
     $('#difficultyBadge').textContent = this.difficultyLabel(puzzle.difficulty);
     this.renderPalette();
     this.configureModeUi();
@@ -524,25 +535,21 @@ class TopoMosaicApp {
     $$('[data-i18n-aria]').forEach((element) => { element.setAttribute('aria-label', this.t(element.dataset.i18nAria)); });
     $$('[data-i18n-title]').forEach((element) => { element.title = this.t(element.dataset.i18nTitle); });
     this.board3d?.renderer?.domElement?.setAttribute('aria-label', this.t('board3dAria'));
-    this.syncDisplayModeUi();
+    this.syncGameplayModeUi();
     this.renderPlaybackButton();
   }
 
-  syncDisplayModeUi() {
-    $('#displayModeSelect').value = this.displayMode;
-    document.body.classList.toggle('display-mono', this.displayMode === 'mono');
+  syncGameplayModeUi() {
+    $('#gameplayModeSelect').value = this.gameplayMode;
+    document.body.classList.toggle('game-bw', this.gameplayMode === 'bw');
   }
 
-  setDisplayMode(mode) {
-    this.displayMode = mode === 'mono' ? 'mono' : 'color';
-    localStorage.setItem(DISPLAY_MODE_STORAGE_KEY, this.displayMode);
-    this.syncDisplayModeUi();
-    if (!this.puzzle) return;
-    this.renderPalette();
-    this.renderSemanticLegend();
-    this.renderClues();
-    this.renderTrackStrip();
-    this.updateRenderer();
+  setGameplayMode(mode) {
+    this.flushSave();
+    this.gameplayMode = mode === 'bw' ? 'bw' : 'color';
+    localStorage.setItem(GAMEPLAY_MODE_STORAGE_KEY, this.gameplayMode);
+    this.syncGameplayModeUi();
+    if (this.sourcePuzzle) this.loadPuzzle(this.sourcePuzzle);
   }
 
   clearHint({ redraw = true } = {}) {
@@ -590,7 +597,7 @@ class TopoMosaicApp {
         button.title = this.paletteName(entry);
         button.setAttribute('aria-label', this.paletteName(entry));
         button.dataset.colorId = String(entry.id);
-        button.dataset.tone = entry.id >= 4 ? 'dark' : 'light';
+        button.dataset.tone = entry.key === 'black' || entry.id >= 4 ? 'dark' : 'light';
         button.innerHTML = `<span class="swatch" style="background:${this.colorForValue(entry.id)}"><span>${this.paletteSymbol(entry)}</span></span><span class="key">${index + 1}</span>`;
         button.addEventListener('click', () => {
           this.selectedColor = entry.id; this.setTool('paint'); this.renderPalette();
@@ -752,7 +759,7 @@ class TopoMosaicApp {
     const data = {
       state: this.state, frame: this.currentFrame, selectedCellIndex: this.selectedCellIndex,
       selectedTrack: this.selectedTrack, tool: this.tool, onionSkin: this.onionSkin, viewMode: this.viewMode,
-      displayMode: this.displayMode, hintedVariableId: this.hintedVariableId,
+      displayMode: this.gameplayMode, hintedVariableId: this.hintedVariableId,
     };
     if (this.puzzle.dimension === 2) this.board2d.update(data);
     else this.board3d?.update(data);
@@ -786,15 +793,20 @@ class TopoMosaicApp {
   renderClues() {
     const container = $('#clueChips');
     if (!this.selectedTrack?.clues.length) {
-      const empty = document.createElement('span'); empty.className = 'empty-clue'; empty.textContent = this.t('noRuns');
+      const empty = document.createElement('span');
+      empty.className = 'empty-clue';
+      empty.textContent = this.t(this.gameplayMode === 'bw' ? 'noFilledCells' : 'noRuns');
       container.replaceChildren(empty);
     } else {
       container.replaceChildren(...this.selectedTrack.clues.map((run) => {
         const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
-        const chip = document.createElement('span'); chip.className = 'clue-chip';
-        chip.style.background = this.colorForValue(run.colorId);
+        const chip = document.createElement('span');
+        chip.className = `clue-chip${this.gameplayMode === 'bw' ? ' binary-clue' : ''}`;
+        chip.style.background = this.gameplayMode === 'bw' ? '#f8fafc' : this.colorForValue(run.colorId);
         chip.title = this.t('clueChipTitle', this.paletteName(palette), run.length);
-        chip.innerHTML = `<span class="clue-pattern" aria-hidden="true"></span><span>${this.paletteSymbol(palette)}${run.length}</span>`;
+        chip.innerHTML = this.gameplayMode === 'bw'
+          ? `<span>${run.length}</span>`
+          : `<span class="clue-pattern" aria-hidden="true"></span><span>${this.paletteSymbol(palette)}${run.length}</span>`;
         return chip;
       }));
     }
@@ -812,7 +824,11 @@ class TopoMosaicApp {
       const button = document.createElement('button'); button.type = 'button';
       const stateClass = value > EMPTY ? ' filled' : value === EMPTY ? ' empty' : ' unknown';
       button.className = `track-cell${stateClass}${cellIndex === this.selectedCellIndex && frame === this.currentFrame ? ' selected' : ''}${this.puzzle.givens[variableId] ? ' given' : ''}${variableId === this.hintedVariableId ? ' hinted' : ''}`;
-      button.style.background = value > EMPTY ? this.colorForValue(value) : value === EMPTY ? '#17202c' : this.displayMode === 'mono' ? '#d8e0eb' : '#39465a';
+      button.style.background = value > EMPTY
+        ? this.colorForValue(value)
+        : value === EMPTY
+          ? (this.gameplayMode === 'bw' ? '#f8fafc' : '#17202c')
+          : (this.gameplayMode === 'bw' ? '#d8e0eb' : '#39465a');
       button.textContent = value === EMPTY ? '×' : value === UNKNOWN ? '?' : '';
       button.innerHTML += `<span class="cell-index">${this.selectedTrack.type === 'time' ? `t${frame + 1}` : offset + 1}</span>`;
       button.setAttribute('role', 'listitem');
@@ -888,7 +904,8 @@ class TopoMosaicApp {
   }
 
   clueText(clues) {
-    if (!clues.length) return this.t('noRuns');
+    if (!clues.length) return this.t(this.gameplayMode === 'bw' ? 'noFilledCells' : 'noRuns');
+    if (this.gameplayMode === 'bw') return clues.map((run) => String(run.length)).join(' · ');
     return clues.map((run) => {
       const palette = this.puzzle.palette.find((entry) => entry.id === run.colorId);
       return `${this.paletteSymbol(palette)}${run.length}`;
@@ -911,7 +928,7 @@ class TopoMosaicApp {
   }
 
   colorForValue(value) {
-    if (this.displayMode === 'mono') return MONO_SWATCHES[value] || '#f7f9fc';
+    if (this.gameplayMode === 'bw' && value > EMPTY) return '#05070a';
     return this.puzzle.palette.find((entry) => entry.id === value)?.color || '#ffffff';
   }
 
@@ -1003,7 +1020,8 @@ class TopoMosaicApp {
 
   loadNextPuzzle() {
     const matching = this.catalog.filter((puzzle) => puzzle.dimension === this.puzzle.dimension && puzzle.hasTime === this.puzzle.hasTime);
-    const index = matching.findIndex((puzzle) => puzzle.id === this.puzzle.id);
+    const currentId = this.sourcePuzzle?.id || this.puzzle.id;
+    const index = matching.findIndex((puzzle) => puzzle.id === currentId);
     const next = matching[(index + 1) % matching.length];
     this.setMode(this.modeForPuzzle(next), next.lattice.kind, next.id);
   }
@@ -1043,12 +1061,21 @@ class TopoMosaicApp {
     this.saveTimer = setTimeout(() => saveProgress(this.puzzle, { state: this.state, frame: this.currentFrame }), 180);
   }
 
+  flushSave() {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    if (this.puzzle?.solution?.length && this.state.length === this.puzzle.solution.length) {
+      saveProgress(this.puzzle, { state: this.state, frame: this.currentFrame });
+    }
+  }
+
   updateUrl() {
     const url = new URL(location.href);
     url.searchParams.set('dimension', String(this.puzzle.dimension));
     url.searchParams.set('time', this.puzzle.hasTime ? '1' : '0');
     url.searchParams.set('lattice', this.puzzle.lattice.kind);
-    url.searchParams.set('puzzle', this.puzzle.id);
+    url.searchParams.set('puzzle', this.sourcePuzzle?.id || this.puzzle.sourceId || this.puzzle.id);
+    url.searchParams.set('rules', this.gameplayMode);
     url.searchParams.set('lang', this.lang);
     history.replaceState(null, '', url);
   }

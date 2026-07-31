@@ -71,11 +71,11 @@
         <span data-i18n="puzzle">Puzzle</span>
         <select id="puzzleSelect"></select>
       </label>
-      <label class="field display-field">
-        <span data-i18n="displayStyle">Display</span>
-        <select id="displayModeSelect">
-          <option value="color" data-i18n="colorMode">Color</option>
-          <option value="mono" data-i18n="monoMode">Black & white</option>
+      <label class="field game-kind-field">
+        <span data-i18n="gameKind">Picture type</span>
+        <select id="gameplayModeSelect">
+          <option value="color" data-i18n="colorPicture">Color picture</option>
+          <option value="bw" data-i18n="blackWhitePicture">Black & white picture</option>
         </select>
       </label>
       <div class="difficulty-badge" id="difficultyBadge">Starter</div>
@@ -277,6 +277,10 @@
         <section>
           <h3 data-i18n="sharedRule">One rule across every geometry</h3>
           <p data-i18n="sharedRuleText">Each clue is an ordered list of colored runs. [Yellow 2] [Blue 3] means two connected yellow cells followed later—or immediately, because the colors differ—by three connected blue cells. Runs of the same color require at least one empty cell between them.</p>
+        </section>
+        <section>
+          <h3 data-i18n="pictureTypes">Two picture types</h3>
+          <p data-i18n="pictureTypesText">Color picture keeps different colors in the clue runs. Black & white picture converts every non-empty picture block into one filled block and uses standard number clues.</p>
         </section>
         <section>
           <h3 data-i18n="timeRule">Time is a real clue direction</h3>

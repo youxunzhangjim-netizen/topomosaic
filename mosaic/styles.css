@@ -163,7 +163,7 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .field > span { font-size: 0.7rem; text-transform: none; letter-spacing: 0; color: var(--faint); font-weight: 760; }
 .field.compact { min-width: 190px; }
 .puzzle-field { min-width: min(330px, 100%); flex: 1; max-width: 460px; }
-.display-field { min-width: 136px; }
+.game-kind-field { min-width: 170px; }
 .difficulty-badge {
   margin-left: auto; border: 1px solid rgba(121, 215, 154, 0.25); color: var(--success);
   background: rgba(121, 215, 154, 0.08); border-radius: 999px; padding: 0.45rem 0.75rem; font-size: 0.76rem;
@@ -276,18 +276,23 @@ dd { margin: 0; text-align: right; font-size: .73rem; overflow-wrap: anywhere; }
 .mobile-action-row button { min-width: 0; padding-inline: .35rem; font-size: .72rem; }
 .mobile-palette-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .42rem; }
 
-body.display-mono .clue-chip {
+body.game-bw .clue-chip {
   color: #071018;
   border-color: rgba(255,255,255,.88);
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.24), 0 0 0 1px rgba(0,0,0,.15);
 }
-body.display-mono .clue-chip .clue-pattern {
+body.game-bw .clue-chip.binary-clue {
+  grid-template-columns: auto;
+  min-width: 38px;
+  color: #071018;
+}
+body.game-bw .clue-chip .clue-pattern {
   background: repeating-linear-gradient(45deg, rgba(0,0,0,.78) 0 2px, transparent 2px 4px);
 }
-body.display-mono .track-cell { color: #071018; text-shadow: none; font-weight: 850; }
-body.display-mono .track-cell.empty { color: var(--text); }
-body.display-mono .track-cell .cell-index { color: currentColor; opacity: .82; text-shadow: none; }
-body.display-mono .semantic-swatch { border-color: rgba(255,255,255,.82); }
+body.game-bw .track-cell { color: #071018; text-shadow: none; font-weight: 850; }
+body.game-bw .track-cell.filled { color: #fff; }
+body.game-bw .track-cell .cell-index { color: currentColor; opacity: .82; text-shadow: none; }
+body.game-bw .semantic-swatch { border-color: rgba(255,255,255,.82); }
 .toast {
   position: fixed; z-index: 160; left: 50%; bottom: 1.2rem; transform: translate(-50%, calc(100% + 3rem));
   max-width: min(480px, calc(100vw - 2rem)); padding: .75rem 1rem; border-radius: 8px;
@@ -372,7 +377,7 @@ kbd { border: 1px solid var(--border-strong); background: var(--surface-3); colo
   .mode-switch { grid-column: 1 / -1; width: 100%; overflow-x: auto; }
   .mode-switch button { flex: 1; min-width: max-content; }
   .configuration .field { min-width: 0; width: 100%; }
-  .display-field { grid-column: 1 / -1; }
+  .game-kind-field { grid-column: 1 / -1; }
   .configuration select { min-width: 0; width: 100%; }
   .difficulty-badge { display: none; }
   .workspace { padding: .55rem; }

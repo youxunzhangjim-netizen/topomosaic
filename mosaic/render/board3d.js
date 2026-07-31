@@ -9,19 +9,11 @@ function dot(left, right) {
   return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
 }
 
-const MONO_COLORS = {
-  1: '#f5f7fa',
-  2: '#d6dce5',
-  3: '#aeb8c7',
-  4: '#7f8a9c',
-  5: '#4f5a6a',
-};
-
 function colorFor(puzzle, value, displayMode = 'color') {
-  if (displayMode === 'mono') {
-    if (value === UNKNOWN) return '#5e6c82';
-    if (value === EMPTY) return '#10151e';
-    return MONO_COLORS[value] || '#f7f9fc';
+  if (displayMode === 'bw') {
+    if (value === UNKNOWN) return '#7f8b9d';
+    if (value === EMPTY) return '#f8fafc';
+    return '#05070a';
   }
   if (value === UNKNOWN) return '#5e6c82';
   if (value === EMPTY) return '#17202c';

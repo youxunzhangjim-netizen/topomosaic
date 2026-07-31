@@ -1,10 +1,11 @@
 import { buildCatalog } from '../mosaic/data/puzzles.js';
-import { createInitialState, solverPayload } from '../mosaic/core/puzzle.js';
+import { createBlackWhitePuzzle, createInitialState, solverPayload } from '../mosaic/core/puzzle.js';
 import { solvePuzzle, forcedMoves } from '../mosaic/core/solver.js';
 
 let failed = false;
 const rows = [];
-for (const puzzle of buildCatalog()) {
+const puzzles = buildCatalog().flatMap((puzzle) => [puzzle, createBlackWhitePuzzle(puzzle)]);
+for (const puzzle of puzzles) {
   const initial = createInitialState(puzzle);
   const payload = solverPayload(puzzle);
   const start = performance.now();
