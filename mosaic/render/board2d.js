@@ -153,6 +153,34 @@ export class Board2D {
     };
   }
 
+  hasStandardAxisClues() {
+    return this.puzzle?.lattice.kind === 'square';
+  }
+
+  axisTracks() {
+    const tracks = this.puzzle?.tracks.filter((track) => track.type === 'space' && track.frame === this.frame) || [];
+    return {
+      rows: tracks.filter((track) => track.family === 'row'),
+      columns: tracks.filter((track) => track.family === 'column'),
+    };
+  }
+
+  axisClueGutters(width, height) {
+    if (!this.hasStandardAxisClues()) return { left: 26, top: 26, right: 26, bottom: 26 };
+    const { rows, columns } = this.axisTracks();
+    const compact = Math.min(width, height) < 560;
+    const tokenWidth = compact ? 21 : 25;
+    const tokenHeight = compact ? 18 : 22;
+    const maxRowRuns = Math.max(1, ...rows.map((track) => track.clues.length));
+    const maxColumnRuns = Math.max(1, ...columns.map((track) => track.clues.length));
+    return {
+      left: Math.min(width * 0.34, 34 + maxRowRuns * (tokenWidth + 4)),
+      top: Math.min(height * 0.3, 34 + maxColumnRuns * (tokenHeight + 4)),
+      right: compact ? 14 : 22,
+      bottom: compact ? 14 : 22,
+    };
+  }
+
   resize(fit = false) {
     const rect = this.canvas.getBoundingClientRect();
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -173,11 +201,14 @@ export class Board2D {
     const height = this.canvas.height / (this.pixelRatio || 1);
     const worldWidth = Math.max(0.1, this.worldBounds.maxX - this.worldBounds.minX);
     const worldHeight = Math.max(0.1, this.worldBounds.maxY - this.worldBounds.minY);
-    this.view.scale = Math.min((width - 52) / worldWidth, (height - 52) / worldHeight);
+    const gutter = this.axisClueGutters(width, height);
+    const availableWidth = Math.max(90, width - gutter.left - gutter.right);
+    const availableHeight = Math.max(90, height - gutter.top - gutter.bottom);
+    this.view.scale = Math.min(availableWidth / worldWidth, availableHeight / worldHeight);
     const centerX = (this.worldBounds.minX + this.worldBounds.maxX) / 2;
     const centerY = (this.worldBounds.minY + this.worldBounds.maxY) / 2;
-    this.view.offsetX = width / 2 - centerX * this.view.scale;
-    this.view.offsetY = height / 2 - centerY * this.view.scale;
+    this.view.offsetX = gutter.left + availableWidth / 2 - centerX * this.view.scale;
+    this.view.offsetY = gutter.top + availableHeight / 2 - centerY * this.view.scale;
     this.draw();
   }
 
@@ -265,6 +296,128 @@ export class Board2D {
         context.beginPath(); context.moveTo(x, maxY); context.lineTo(x + (maxY - minY), minY); context.stroke();
       }
     }
+    context.restore();
+  }
+
+  paletteEntry(value) {
+    return this.puzzle.palette.find((entry) => entry.id === value);
+  }
+
+  paletteSymbol(entry) {
+    return {
+      yellow: 'Y',
+      blue: 'B',
+      green: 'G',
+      red: 'R',
+      brown: 'E',
+      black: 'B',
+    }[entry?.key] || entry?.key?.[0]?.toUpperCase() || String(entry?.id ?? '');
+  }
+
+  paletteTone(entry) {
+    return entry?.key === 'black' || entry?.id >= 4 ? 'dark' : 'light';
+  }
+
+  clueTokens(clues) {
+    if (!clues.length) return [{ text: '0', color: 'rgba(248,250,252,0.1)', tone: 'empty' }];
+    return clues.map((run) => {
+      const entry = this.paletteEntry(run.colorId);
+      if (this.displayMode === 'bw') return { text: String(run.length), color: '#f8fafc', tone: 'light' };
+      return {
+        text: `${this.paletteSymbol(entry)}${run.length}`,
+        color: this.valueColor(run.colorId),
+        tone: this.paletteTone(entry),
+      };
+    });
+  }
+
+  roundedRect(context, x, y, width, height, radius) {
+    const corner = Math.min(radius, width / 2, height / 2);
+    context.beginPath();
+    context.moveTo(x + corner, y);
+    context.lineTo(x + width - corner, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + corner);
+    context.lineTo(x + width, y + height - corner);
+    context.quadraticCurveTo(x + width, y + height, x + width - corner, y + height);
+    context.lineTo(x + corner, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - corner);
+    context.lineTo(x, y + corner);
+    context.quadraticCurveTo(x, y, x + corner, y);
+    context.closePath();
+  }
+
+  drawClueToken(context, token, x, y, width, height, active = false) {
+    context.save();
+    this.roundedRect(context, x, y, width, height, 6);
+    context.fillStyle = token.tone === 'empty' ? 'rgba(11,15,22,0.8)' : token.color;
+    context.fill();
+    context.lineWidth = active ? 2 : 1;
+    context.strokeStyle = active ? '#8be9ff' : 'rgba(255,255,255,0.5)';
+    context.stroke();
+    context.fillStyle = token.tone === 'dark' ? '#ffffff' : token.tone === 'empty' ? '#9cabc0' : '#071018';
+    context.font = `800 ${Math.max(10, Math.min(13, height * 0.58))}px Inter, system-ui, sans-serif`;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(token.text, x + width / 2, y + height / 2 + 0.5, width - 3);
+    context.restore();
+  }
+
+  drawSquareAxisClues(context) {
+    if (!this.hasStandardAxisClues()) return;
+    const { rows, columns } = this.axisTracks();
+    if (!rows.length || !columns.length) return;
+
+    const width = this.canvas.width / (this.pixelRatio || 1);
+    const height = this.canvas.height / (this.pixelRatio || 1);
+    const compact = Math.min(width, height) < 560;
+    const tokenWidth = compact ? 21 : 25;
+    const tokenHeight = compact ? 18 : 22;
+    const gap = compact ? 3 : 4;
+    const [leftA, topA] = this.worldToScreen([this.worldBounds.minX, this.worldBounds.minY]);
+    const [rightA, bottomA] = this.worldToScreen([this.worldBounds.maxX, this.worldBounds.maxY]);
+    const boardLeft = Math.min(leftA, rightA);
+    const boardRight = Math.max(leftA, rightA);
+    const boardTop = Math.min(topA, bottomA);
+    const selectedId = this.selectedTrack?.type === 'space' ? this.selectedTrack.id : null;
+
+    context.save();
+    context.font = `800 ${compact ? 10 : 11}px Inter, system-ui, sans-serif`;
+    context.fillStyle = 'rgba(156,171,192,0.9)';
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillText('X', boardLeft - 14, boardTop - 14);
+    context.fillText('Y', boardLeft - 14, boardTop + 12);
+
+    for (const track of rows) {
+      const tokens = this.clueTokens(track.clues);
+      const points = track.cells.map((cellIndex) => this.worldToScreen(this.puzzle.lattice.cells[cellIndex].position));
+      const y = points.reduce((sum, point) => sum + point[1], 0) / points.length - tokenHeight / 2;
+      const totalWidth = tokens.length * tokenWidth + (tokens.length - 1) * gap;
+      const startX = boardLeft - 12 - totalWidth;
+      tokens.forEach((token, index) => {
+        this.drawClueToken(context, token, startX + index * (tokenWidth + gap), y, tokenWidth, tokenHeight, track.id === selectedId);
+      });
+    }
+
+    for (const track of columns) {
+      const tokens = this.clueTokens(track.clues);
+      const points = track.cells.map((cellIndex) => this.worldToScreen(this.puzzle.lattice.cells[cellIndex].position));
+      const x = points.reduce((sum, point) => sum + point[0], 0) / points.length - tokenWidth / 2;
+      const totalHeight = tokens.length * tokenHeight + (tokens.length - 1) * gap;
+      const startY = boardTop - 12 - totalHeight;
+      tokens.forEach((token, index) => {
+        this.drawClueToken(context, token, x, startY + index * (tokenHeight + gap), tokenWidth, tokenHeight, track.id === selectedId);
+      });
+    }
+
+    context.strokeStyle = 'rgba(139,233,255,0.22)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(boardLeft - 4, boardTop);
+    context.lineTo(boardLeft - 4, this.worldToScreen([0, this.worldBounds.maxY])[1]);
+    context.moveTo(boardLeft, boardTop - 4);
+    context.lineTo(boardRight, boardTop - 4);
+    context.stroke();
     context.restore();
   }
 
@@ -376,6 +529,8 @@ export class Board2D {
         context.restore();
       }
     }
+
+    this.drawSquareAxisClues(context);
   }
 
   destroy() {

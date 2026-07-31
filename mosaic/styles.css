@@ -216,7 +216,7 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .zoom-row { gap: 0.4rem; }
 .zoom-row button { flex: 1; }
 .toggle-row { gap: 0.55rem; margin-top: 0.72rem; color: var(--muted); font-size: 0.78rem; }
-.puzzle-panel { display: grid; grid-template-rows: auto auto minmax(280px, 1fr) auto auto; }
+.puzzle-panel { display: grid; grid-template-rows: auto auto auto minmax(280px, 1fr) auto auto; }
 .puzzle-header { display: grid; grid-template-columns: 1fr minmax(180px, 260px); gap: 1rem; padding: 1rem 1.1rem 0.8rem; }
 .puzzle-header h2 { margin-bottom: 0.32rem; font-size: 1.25rem; }
 .puzzle-header p { margin-bottom: 0; color: var(--muted); font-size: 0.82rem; line-height: 1.45; max-width: 62ch; }
@@ -227,6 +227,73 @@ h3 { font-size: 0.82rem; text-transform: none; letter-spacing: 0; color: var(--m
 .progress-track > div { width: 0; height: 100%; background: linear-gradient(90deg, var(--accent-strong), var(--success)); transition: width 180ms ease; }
 .view-tabs { display: flex; gap: 0.35rem; padding: 0 1rem 0.65rem; border-bottom: 1px solid var(--border); }
 .view-tabs button { min-height: 38px; padding: 0.35rem 0.7rem; }
+.quick-clue-sheet {
+  display: grid;
+  grid-template-columns: minmax(110px, 150px) minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: stretch;
+  padding: 0.58rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,12,18,.52);
+}
+.quick-clue-sheet[hidden] { display: none !important; }
+.quick-clue-heading {
+  display: grid;
+  align-content: center;
+  gap: 0.18rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 760;
+}
+.quick-clue-heading span:first-child { color: var(--accent); font-size: 0.72rem; }
+.quick-clue-map {
+  min-width: 0;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.08rem;
+}
+.quick-clue-family {
+  flex: 0 0 min(260px, 72vw);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid rgba(45,58,77,.78);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(7,11,17,.34);
+}
+.quick-clue-family-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.34rem 0.45rem;
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 820;
+}
+.quick-clue-lines {
+  max-height: 108px;
+  overflow-y: auto;
+}
+.quick-clue-line {
+  width: 100%;
+  min-height: 30px;
+  display: grid;
+  grid-template-columns: minmax(38px, .42fr) minmax(0, 1fr);
+  gap: 0.38rem;
+  align-items: center;
+  border: 0;
+  border-top: 1px solid rgba(45,58,77,.66);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.25rem 0.45rem;
+  text-align: left;
+}
+.quick-clue-line.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
 .viewport-wrap { min-height: 0; position: relative; background: #10151e; overflow: hidden; }
 #board2d, .board3d, .three-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
 .board3d { position: absolute; inset: 0; }
@@ -448,7 +515,7 @@ kbd { border: 1px solid var(--border-strong); background: var(--surface-3); colo
   body { padding-bottom: 70px; }
   .workspace { height: auto; min-height: calc(100vh - 140px); grid-template-columns: 1fr; padding-bottom: 5rem; }
   .tool-panel { display: none; }
-  .puzzle-panel { min-height: 70vh; grid-template-rows: auto auto minmax(420px, 60vh) auto auto; }
+  .puzzle-panel { min-height: 70vh; grid-template-rows: auto auto auto minmax(420px, 60vh) auto auto; }
   .mobile-control-shelf {
     display: grid;
     gap: .62rem;
@@ -497,9 +564,13 @@ kbd { border: 1px solid var(--border-strong); background: var(--surface-3); colo
   .panel { border-radius: 13px; }
   .puzzle-header { padding: .85rem; }
   .puzzle-header h2 { font-size: 1.08rem; }
-  .puzzle-panel { grid-template-rows: auto auto minmax(390px, 58vh) auto auto; }
+  .puzzle-panel { grid-template-rows: auto auto auto minmax(390px, 58vh) auto auto; }
   .view-tabs { overflow-x: auto; padding-left: .65rem; }
   .view-tabs button { flex: 1; }
+  .quick-clue-sheet { grid-template-columns: 1fr; gap: .45rem; padding: .52rem; }
+  .quick-clue-heading { grid-template-columns: 1fr auto; align-items: center; }
+  .quick-clue-family { flex-basis: 230px; }
+  .quick-clue-lines { max-height: 92px; }
   .timeline-panel, .slice-controls { padding: .6rem; }
   .slice-controls .field { min-width: 120px; }
   .mobile-action-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }

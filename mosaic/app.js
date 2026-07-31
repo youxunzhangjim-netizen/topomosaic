@@ -30,7 +30,7 @@ const I18N = {
     languageCodeToChinese: '中文', languageCodeToEnglish: 'EN', languageChanged: 'Language switched to English.',
     puzzleConfiguration: 'Mosaic setup', dimensionTimeMode: 'Topology mode', puzzleTools: 'Mosaic mark tools',
     colorPalette: 'Tile palette', binaryPalette: 'Binary mark guide', zoomOut: 'Zoom out', zoomIn: 'Zoom in', puzzleProgress: 'Mosaic progress',
-    viewMode: 'Mosaic view', board2dAria: 'Interactive topological mosaic', board3dAria: 'Interactive 3D lattice mosaic',
+    viewMode: 'Mosaic view', visibleAxisClues: 'Visible axis clue arrays', board2dAria: 'Interactive topological mosaic', board3dAria: 'Interactive 3D lattice mosaic',
     sliceControls: 'Layer controls', previousSlice: 'Previous layer', nextSlice: 'Next layer', sliceLayer: 'Layer',
     timeNavigation: 'Time path', previousFrame: 'Previous frame', nextFrame: 'Next frame',
     currentTimeFrame: 'Current time frame', playAnimation: 'Play time', pauseAnimation: 'Pause time',
@@ -83,7 +83,7 @@ const I18N = {
     languageCodeToChinese: '中文', languageCodeToEnglish: 'EN', languageChanged: '語言已切換為繁體中文。',
     puzzleConfiguration: '馬賽克設定', dimensionTimeMode: '拓撲模式', puzzleTools: '馬賽克標記工具',
     colorPalette: '圖塊色盤', binaryPalette: '黑白標記指南', zoomOut: '縮小', zoomIn: '放大', puzzleProgress: '馬賽克進度',
-    viewMode: '馬賽克視圖', board2dAria: '互動式拓撲馬賽克', board3dAria: '互動式 3D 晶格馬賽克',
+    viewMode: '馬賽克視圖', visibleAxisClues: '可見軸向線索陣列', board2dAria: '互動式拓撲馬賽克', board3dAria: '互動式 3D 晶格馬賽克',
     sliceControls: '分層控制', previousSlice: '上一層', nextSlice: '下一層', sliceLayer: '分層',
     timeNavigation: '時間路徑', previousFrame: '上一幀', nextFrame: '下一幀',
     currentTimeFrame: '目前時間幀', playAnimation: '播放時間', pauseAnimation: '暫停時間',
@@ -525,6 +525,7 @@ class TopoMosaicApp {
     this.renderSemanticLegend();
     this.renderClues();
     this.renderClueMap();
+    this.renderQuickClueMap();
     this.renderTrackStrip();
     this.renderCellCard();
     this.renderTimeline();
@@ -757,6 +758,21 @@ class TopoMosaicApp {
     this.updateAll();
   }
 
+  selectTrack(track) {
+    if (!track) return;
+    this.stopPlayback();
+    this.clueMode = track.type === 'time' ? 'time' : 'space';
+    this.syncClueModeTabs();
+    if (track.type === 'space') {
+      this.activeFamily = track.family;
+      if (!track.cells.includes(this.selectedCellIndex)) this.selectedCellIndex = track.cells[0];
+    } else {
+      this.selectedCellIndex = track.cells[0];
+    }
+    this.selectedTrack = track;
+    this.updateAll();
+  }
+
   setFrame(frame) {
     this.stopPlayback();
     const next = Math.max(0, Math.min(frame, this.puzzle.frameCount - 1));
@@ -788,6 +804,7 @@ class TopoMosaicApp {
     this.renderTrackNavigation();
     this.renderClues();
     this.renderClueMap();
+    this.renderQuickClueMap();
     this.renderTrackStrip();
     this.renderCellCard();
     this.renderTimeline();
@@ -889,11 +906,8 @@ class TopoMosaicApp {
     });
   }
 
-  renderClueMap() {
-    const container = $('#clueMap');
-    if (!container || !this.puzzle) return;
+  clueMapTracks() {
     const timeMode = this.clueMode === 'time' && this.puzzle.hasTime;
-    $('#clueMapFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
     const tracks = timeMode
       ? this.puzzle.tracks.filter((track) => track.type === 'time')
       : this.puzzle.tracks.filter((track) => track.type === 'space' && track.frame === this.currentFrame);
@@ -902,8 +916,15 @@ class TopoMosaicApp {
       if (!groups.has(track.family)) groups.set(track.family, { label: this.trackFamilyLabel(track), tracks: [] });
       groups.get(track.family).tracks.push(track);
     }
+    return { timeMode, groups: [...groups.values()] };
+  }
 
-    container.replaceChildren(...[...groups.values()].map((group) => {
+  renderClueMap() {
+    const container = $('#clueMap');
+    if (!container || !this.puzzle) return;
+    const { timeMode, groups } = this.clueMapTracks();
+    $('#clueMapFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
+    container.replaceChildren(...groups.map((group) => {
       const familyCard = document.createElement('section');
       familyCard.className = 'clue-family-card';
       const heading = document.createElement('div');
@@ -928,22 +949,52 @@ class TopoMosaicApp {
         array.className = 'clue-array';
         array.replaceChildren(...this.clueRunTokens(track.clues));
         row.replaceChildren(label, array);
-        row.addEventListener('click', () => {
-          this.stopPlayback();
-          this.clueMode = track.type === 'time' ? 'time' : 'space';
-          this.syncClueModeTabs();
-          if (track.type === 'space') {
-            this.activeFamily = track.family;
-            if (!track.cells.includes(this.selectedCellIndex)) this.selectedCellIndex = track.cells[0];
-          } else {
-            this.selectedCellIndex = track.cells[0];
-          }
-          this.selectedTrack = track;
-          this.updateAll();
-        });
+        row.addEventListener('click', () => this.selectTrack(track));
         familyCard.append(row);
       }
       return familyCard;
+    }));
+  }
+
+  renderQuickClueMap() {
+    const section = $('#quickClueSheet');
+    const container = $('#quickClueMap');
+    if (!section || !container || !this.puzzle) return;
+    const { timeMode, groups } = this.clueMapTracks();
+    section.hidden = !groups.length;
+    $('#quickClueFrameLabel').textContent = timeMode ? this.t('timeAxisClues') : this.t('currentFrameClues', this.currentFrame + 1);
+    container.replaceChildren(...groups.map((group) => {
+      const family = document.createElement('section');
+      family.className = 'quick-clue-family';
+      const title = document.createElement('div');
+      title.className = 'quick-clue-family-title';
+      const label = document.createElement('span');
+      label.textContent = group.label;
+      const count = document.createElement('span');
+      count.className = 'clue-family-count';
+      count.textContent = this.t('pathCount', group.tracks.length);
+      title.replaceChildren(label, count);
+
+      const lines = document.createElement('div');
+      lines.className = 'quick-clue-lines';
+      lines.replaceChildren(...group.tracks.map((track) => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = `quick-clue-line${track.id === this.selectedTrack?.id ? ' active' : ''}`;
+        row.setAttribute('aria-label', this.t('selectAxisClue', group.label, track.lineLabel, this.clueArrayText(track.clues)));
+        const lineLabel = document.createElement('span');
+        lineLabel.className = 'clue-line-label';
+        lineLabel.textContent = track.lineLabel;
+        const array = document.createElement('span');
+        array.className = 'clue-array';
+        array.replaceChildren(...this.clueRunTokens(track.clues));
+        row.replaceChildren(lineLabel, array);
+        row.addEventListener('click', () => this.selectTrack(track));
+        return row;
+      }));
+
+      family.replaceChildren(title, lines);
+      return family;
     }));
   }
 
