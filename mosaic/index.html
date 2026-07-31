@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#10151e">
-  <meta name="description" content="TopoMosaic: colored ordered-track puzzles on 2D tilings, 3D lattices, and time.">
-  <title>TopoMosaic — Spatial & Temporal Logic</title>
+  <meta name="description" content="TopoMosaic: fill binary or color mosaics across tilings, lattices, and time paths.">
+  <title>TopoMosaic — Topological Mosaic Logic</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
@@ -19,7 +19,7 @@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#workspace" data-i18n="skipToPuzzle">Skip to puzzle</a>
+  <a class="skip-link" href="#workspace" data-i18n="skipToPuzzle">Skip to mosaic</a>
   <div id="app" class="app-shell">
     <header class="topbar">
       <div class="brand-group">
@@ -35,7 +35,7 @@
         </div>
         <div>
           <h1>TopoMosaic</h1>
-          <p data-i18n="tagline">Spatial & temporal colored logic</p>
+          <p data-i18n="tagline">Mosaics through paths, lattices, and time</p>
         </div>
       </div>
       <div class="top-actions">
@@ -51,71 +51,71 @@
           </svg>
           <span class="language-code" id="languageCode">中文</span>
         </button>
-        <button type="button" class="icon-button" id="helpButton" aria-label="Open help" data-i18n-aria="openHelp" data-i18n-title="openHelp">?</button>
+        <button type="button" class="icon-button" id="helpButton" aria-label="Open rules" data-i18n-aria="openHelp" data-i18n-title="openHelp">?</button>
       </div>
     </header>
 
-    <section class="configuration" aria-label="Puzzle configuration" data-i18n-aria="puzzleConfiguration">
+    <section class="configuration" aria-label="Mosaic setup" data-i18n-aria="puzzleConfiguration">
       <fieldset class="mode-switch" id="modeSwitch">
-        <legend class="sr-only" data-i18n="dimensionTimeMode">Dimension and time mode</legend>
+        <legend class="sr-only" data-i18n="dimensionTimeMode">Topology mode</legend>
         <button type="button" data-mode="2-static">2D</button>
-        <button type="button" data-mode="2-time">2D + Time</button>
-        <button type="button" data-mode="3-static">3D</button>
-        <button type="button" data-mode="3-time">3D + Time</button>
+        <button type="button" data-mode="2-time">2D Time</button>
+        <button type="button" data-mode="3-static">3D Lattice</button>
+        <button type="button" data-mode="3-time">3D Time</button>
       </fieldset>
       <label class="field">
-        <span data-i18n="lattice">Lattice</span>
+        <span data-i18n="lattice">Topology</span>
         <select id="latticeSelect"></select>
       </label>
       <label class="field puzzle-field">
-        <span data-i18n="puzzle">Puzzle</span>
+        <span data-i18n="puzzle">Mosaic</span>
         <select id="puzzleSelect"></select>
       </label>
       <label class="field game-kind-field">
-        <span data-i18n="gameKind">Picture type</span>
+        <span data-i18n="gameKind">Rule style</span>
         <select id="gameplayModeSelect">
-          <option value="color" data-i18n="colorPicture">Color picture</option>
-          <option value="bw" data-i18n="blackWhitePicture">Black & white picture</option>
+          <option value="color" data-i18n="colorPicture">Color mosaic</option>
+          <option value="bw" data-i18n="blackWhitePicture">Binary mosaic</option>
         </select>
       </label>
       <div class="difficulty-badge" id="difficultyBadge">Starter</div>
     </section>
 
     <main id="workspace" class="workspace">
-      <aside class="tool-panel panel" aria-label="Puzzle tools" data-i18n-aria="puzzleTools">
+      <aside class="tool-panel panel" aria-label="Mosaic mark tools" data-i18n-aria="puzzleTools">
         <section>
-          <h2 data-i18n="tools">Tools</h2>
+          <h2 data-i18n="tools">Marks</h2>
           <div class="tool-grid" id="toolGrid">
             <button type="button" data-tool="paint" class="tool-button active">
-              <span class="tool-symbol" aria-hidden="true">●</span><span data-i18n="paint">Draw</span>
+              <span class="tool-symbol" aria-hidden="true">●</span><span data-i18n="paint">Fill</span>
             </button>
             <button type="button" data-tool="empty" class="tool-button">
-              <span class="tool-symbol" aria-hidden="true">×</span><span data-i18n="empty">Empty</span>
+              <span class="tool-symbol" aria-hidden="true">×</span><span data-i18n="empty">Blank</span>
             </button>
             <button type="button" data-tool="clear" class="tool-button">
-              <span class="tool-symbol" aria-hidden="true">○</span><span data-i18n="clear">Clean</span>
+              <span class="tool-symbol" aria-hidden="true">○</span><span data-i18n="clear">Clear</span>
             </button>
             <button type="button" data-tool="inspect" class="tool-button">
-              <span class="tool-symbol" aria-hidden="true">⌖</span><span data-i18n="inspect">Inspect</span>
+              <span class="tool-symbol" aria-hidden="true">⌖</span><span data-i18n="inspect">Probe</span>
             </button>
             <button type="button" data-tool="orbit" class="tool-button">
-              <span class="tool-symbol" aria-hidden="true">↻</span><span data-i18n="move">Move / Orbit</span>
+              <span class="tool-symbol" aria-hidden="true">↻</span><span data-i18n="move">Navigate / Orbit</span>
             </button>
           </div>
         </section>
 
         <section>
-          <h2 data-i18n="palette">Palette</h2>
-          <div id="paletteButtons" class="palette-grid" role="radiogroup" aria-label="Color palette" data-i18n-aria="colorPalette"></div>
+          <h2 data-i18n="palette">Tiles</h2>
+          <div id="paletteButtons" class="palette-grid" role="radiogroup" aria-label="Tile palette" data-i18n-aria="colorPalette"></div>
         </section>
 
         <section>
-          <h2 data-i18n="actions">Actions</h2>
+          <h2 data-i18n="actions">Solve</h2>
           <div class="action-grid">
             <button type="button" id="undoButton" data-i18n="undo">Undo</button>
             <button type="button" id="redoButton" data-i18n="redo">Redo</button>
             <button type="button" id="hintButton" data-i18n="hint">Hint</button>
-            <button type="button" id="checkButton" data-i18n="check">Check</button>
+            <button type="button" id="checkButton" data-i18n="check">Verify</button>
             <button type="button" id="resetButton" class="danger-subtle" data-i18n="reset">Reset</button>
           </div>
         </section>
@@ -129,11 +129,11 @@
           </div>
           <label class="toggle-row">
             <input type="checkbox" id="onionSkinToggle" checked>
-            <span data-i18n="onionSkin">Previous-frame ghost</span>
+            <span data-i18n="onionSkin">Time ghost</span>
           </label>
           <label class="toggle-row">
             <input type="checkbox" id="strictModeToggle">
-            <span data-i18n="strictMode">Immediate mistake warning</span>
+            <span data-i18n="strictMode">Mistake guard</span>
           </label>
         </section>
       </aside>
@@ -141,53 +141,53 @@
       <section class="puzzle-panel panel">
         <header class="puzzle-header">
           <div>
-            <div class="eyebrow" id="modeEyebrow">2D · Square cells</div>
-            <h2 id="puzzleTitle">Puzzle</h2>
+            <div class="eyebrow" id="modeEyebrow">2D Tiles · Square tiling</div>
+            <h2 id="puzzleTitle">Mosaic</h2>
             <p id="puzzleDescription"></p>
           </div>
-          <div class="progress-block" aria-label="Puzzle progress" data-i18n-aria="puzzleProgress">
+          <div class="progress-block" aria-label="Mosaic progress" data-i18n-aria="puzzleProgress">
             <div class="progress-label"><span id="progressText">0 / 0</span><span id="progressPercent">0%</span></div>
             <div class="progress-track"><div id="progressFill"></div></div>
           </div>
         </header>
 
-        <div class="view-tabs" id="viewTabs" role="tablist" aria-label="View mode" data-i18n-aria="viewMode">
-          <button type="button" role="tab" data-view="board" class="active" data-i18n="board">Board</button>
-          <button type="button" role="tab" data-view="model" data-i18n="model">Model</button>
-          <button type="button" role="tab" data-view="slice" data-i18n="slice">Slice</button>
-          <button type="button" role="tab" data-view="track" data-i18n="track">Track</button>
+        <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Mosaic view" data-i18n-aria="viewMode">
+          <button type="button" role="tab" data-view="board" class="active" data-i18n="board">Mosaic</button>
+          <button type="button" role="tab" data-view="model" data-i18n="model">Lattice</button>
+          <button type="button" role="tab" data-view="slice" data-i18n="slice">Layer</button>
+          <button type="button" role="tab" data-view="track" data-i18n="track">Path</button>
         </div>
 
         <div class="viewport-wrap" id="viewportWrap">
-          <canvas id="board2d" aria-label="Two-dimensional puzzle board" data-i18n-aria="board2dAria"></canvas>
+          <canvas id="board2d" aria-label="Interactive topological mosaic" data-i18n-aria="board2dAria"></canvas>
           <div id="board3d" class="board3d" hidden></div>
           <div id="rendererNotice" class="renderer-notice" hidden role="status"></div>
           <div class="viewport-badge" id="viewportBadge">Frame 1</div>
         </div>
 
-        <section class="mobile-control-shelf" aria-label="Mobile puzzle tools" data-i18n-aria="mobilePuzzleTools">
-          <div id="mobilePaletteButtons" class="mobile-palette-grid" role="radiogroup" aria-label="Color palette" data-i18n-aria="colorPalette"></div>
+        <section class="mobile-control-shelf" aria-label="Mobile mosaic controls" data-i18n-aria="mobilePuzzleTools">
+          <div id="mobilePaletteButtons" class="mobile-palette-grid" role="radiogroup" aria-label="Tile palette" data-i18n-aria="colorPalette"></div>
           <div class="mobile-action-row">
             <button type="button" id="mobileUndoButton" data-i18n="undo">Undo</button>
             <button type="button" id="mobileRedoButton" data-i18n="redo">Redo</button>
             <button type="button" id="mobileHintButton" data-i18n="hint">Hint</button>
-            <button type="button" id="mobileCheckButton" data-i18n="check">Check</button>
+            <button type="button" id="mobileCheckButton" data-i18n="check">Verify</button>
             <button type="button" id="mobileResetButton" class="danger-subtle" data-i18n="reset">Reset</button>
           </div>
         </section>
 
-        <section id="sliceControls" class="slice-controls" hidden aria-label="3D slice controls" data-i18n-aria="sliceControls">
+        <section id="sliceControls" class="slice-controls" hidden aria-label="Layer controls" data-i18n-aria="sliceControls">
           <label class="field compact">
-            <span data-i18n="plane">Plane</span>
+            <span data-i18n="plane">Layer axis</span>
             <select id="sliceFamilySelect"></select>
           </label>
-          <button type="button" id="slicePreviousButton" aria-label="Previous slice" data-i18n-aria="previousSlice" data-i18n-title="previousSlice">−</button>
-          <input id="sliceSlider" type="range" min="0" max="0" value="0" aria-label="Slice layer" data-i18n-aria="sliceLayer">
-          <button type="button" id="sliceNextButton" aria-label="Next slice" data-i18n-aria="nextSlice" data-i18n-title="nextSlice">+</button>
+          <button type="button" id="slicePreviousButton" aria-label="Previous layer" data-i18n-aria="previousSlice" data-i18n-title="previousSlice">−</button>
+          <input id="sliceSlider" type="range" min="0" max="0" value="0" aria-label="Layer" data-i18n-aria="sliceLayer">
+          <button type="button" id="sliceNextButton" aria-label="Next layer" data-i18n-aria="nextSlice" data-i18n-title="nextSlice">+</button>
           <span id="sliceLabel">1 / 1</span>
         </section>
 
-        <section id="timelinePanel" class="timeline-panel" hidden aria-label="Time navigation" data-i18n-aria="timeNavigation">
+        <section id="timelinePanel" class="timeline-panel" hidden aria-label="Time path" data-i18n-aria="timeNavigation">
           <button type="button" id="previousFrameButton" aria-label="Previous frame" data-i18n-aria="previousFrame" data-i18n-title="previousFrame">⟨</button>
           <button type="button" id="playButton" aria-label="Play animation" data-i18n-title="playAnimation">▶</button>
           <input id="timelineSlider" type="range" min="0" max="0" value="0" aria-label="Current time frame" data-i18n-aria="currentTimeFrame">
@@ -196,10 +196,10 @@
         </section>
       </section>
 
-      <aside class="clue-panel panel" aria-label="Clues and cell information" data-i18n-aria="cluesCellInfo">
-        <div class="clue-mode-tabs" id="clueModeTabs" role="tablist" aria-label="Clue dimension" data-i18n-aria="clueDimension">
-          <button type="button" role="tab" data-clue-mode="space" class="active" data-i18n="spatialClue">Spatial clue</button>
-          <button type="button" role="tab" data-clue-mode="time" data-i18n="timeClue">Time clue</button>
+      <aside class="clue-panel panel" aria-label="Path clues and tile focus" data-i18n-aria="cluesCellInfo">
+        <div class="clue-mode-tabs" id="clueModeTabs" role="tablist" aria-label="Clue axis" data-i18n-aria="clueDimension">
+          <button type="button" role="tab" data-clue-mode="space" class="active" data-i18n="spatialClue">Space path</button>
+          <button type="button" role="tab" data-clue-mode="time" data-i18n="timeClue">Time path</button>
         </div>
 
         <section class="track-navigation">
@@ -209,55 +209,55 @@
               <h2 id="trackLineLabel">Y1</h2>
             </div>
             <div class="track-stepper">
-              <button type="button" id="previousTrackButton" aria-label="Previous clue line" data-i18n-aria="previousClueLine" data-i18n-title="previousClueLine">↑</button>
-              <button type="button" id="nextTrackButton" aria-label="Next clue line" data-i18n-aria="nextClueLine" data-i18n-title="nextClueLine">↓</button>
+              <button type="button" id="previousTrackButton" aria-label="Previous path" data-i18n-aria="previousClueLine" data-i18n-title="previousClueLine">↑</button>
+              <button type="button" id="nextTrackButton" aria-label="Next path" data-i18n-aria="nextClueLine" data-i18n-title="nextClueLine">↓</button>
             </div>
           </div>
           <label class="field">
-            <span data-i18n="direction">Direction</span>
+            <span data-i18n="direction">Path family</span>
             <select id="trackFamilySelect"></select>
           </label>
-          <div id="clueChips" class="clue-chips" aria-label="Ordered colored clues" data-i18n-aria="orderedColoredClues"></div>
+          <div id="clueChips" class="clue-chips" aria-label="Ordered path runs" data-i18n-aria="orderedColoredClues"></div>
           <div id="trackStatus" class="track-status"></div>
         </section>
 
         <section>
-          <h3 data-i18n="orderedTrack">Ordered track</h3>
-          <div id="trackStrip" class="track-strip" role="list" aria-label="Cells on the selected clue track" data-i18n-aria="selectedTrackCells"></div>
-          <p class="microcopy" data-i18n="trackInstruction">Select or edit any cell here when the model is difficult to reach.</p>
+          <h3 data-i18n="orderedTrack">Path strip</h3>
+          <div id="trackStrip" class="track-strip" role="list" aria-label="Tiles on selected path" data-i18n-aria="selectedTrackCells"></div>
+          <p class="microcopy" data-i18n="trackInstruction">Mark this path directly when the mosaic or lattice is hard to reach.</p>
         </section>
 
         <section class="cell-card">
           <div class="cell-card-header">
-            <h3 data-i18n="selectedCell">Selected cell</h3>
+            <h3 data-i18n="selectedCell">Tile focus</h3>
             <span id="cellCoordinate">—</span>
           </div>
           <dl>
-            <div><dt data-i18n="state">State</dt><dd id="cellState">Unknown</dd></div>
-            <div><dt data-i18n="memberships">Spatial tracks</dt><dd id="cellMemberships">—</dd></div>
-            <div id="temporalSummaryRow"><dt data-i18n="temporalRun">Temporal clue</dt><dd id="temporalSummary">—</dd></div>
-            <div><dt data-i18n="semanticPart">Semantic part</dt><dd id="semanticPart">Hidden</dd></div>
+            <div><dt data-i18n="state">Mark</dt><dd id="cellState">Unmarked</dd></div>
+            <div><dt data-i18n="memberships">Crossing paths</dt><dd id="cellMemberships">—</dd></div>
+            <div id="temporalSummaryRow"><dt data-i18n="temporalRun">Time run</dt><dd id="temporalSummary">—</dd></div>
+            <div><dt data-i18n="semanticPart">Revealed part</dt><dd id="semanticPart">Unrevealed</dd></div>
           </dl>
         </section>
 
         <section id="semanticLegendSection" class="semantic-section">
-          <h3 data-i18n="modelParts">Model parts</h3>
+          <h3 data-i18n="modelParts">Mosaic parts</h3>
           <div id="semanticLegend"></div>
         </section>
 
         <section id="educationSection" class="education-note" hidden>
-          <h3 data-i18n="whyThisLattice">Why this lattice?</h3>
+          <h3 data-i18n="whyThisLattice">Topology note</h3>
           <p id="educationNote"></p>
         </section>
       </aside>
     </main>
 
-    <div class="mobile-toolbar" aria-label="Mobile puzzle tools" data-i18n-aria="mobilePuzzleTools">
-      <button type="button" data-mobile-tool="paint" class="active"><span aria-hidden="true">●</span><span data-i18n="paint">Draw</span></button>
-      <button type="button" data-mobile-tool="empty"><span aria-hidden="true">×</span><span data-i18n="empty">Empty</span></button>
-      <button type="button" data-mobile-tool="clear"><span aria-hidden="true">○</span><span data-i18n="clear">Clean</span></button>
+    <div class="mobile-toolbar" aria-label="Mobile mosaic controls" data-i18n-aria="mobilePuzzleTools">
+      <button type="button" data-mobile-tool="paint" class="active"><span aria-hidden="true">●</span><span data-i18n="paint">Fill</span></button>
+      <button type="button" data-mobile-tool="empty"><span aria-hidden="true">×</span><span data-i18n="empty">Blank</span></button>
+      <button type="button" data-mobile-tool="clear"><span aria-hidden="true">○</span><span data-i18n="clear">Clear</span></button>
       <button type="button" data-mobile-tool="orbit"><span aria-hidden="true">↻</span><span data-i18n="moveShort">Move</span></button>
-      <button type="button" id="mobileClueButton"><span aria-hidden="true">≡</span><span data-i18n="clues">Clues</span></button>
+      <button type="button" id="mobileClueButton"><span aria-hidden="true">≡</span><span data-i18n="clues">Paths</span></button>
     </div>
   </div>
 
@@ -269,52 +269,52 @@
       <header>
         <div>
           <div class="eyebrow">TopoMosaic V1</div>
-          <h2 data-i18n="howToPlay">How to play</h2>
+          <h2 data-i18n="howToPlay">Mosaic rules</h2>
         </div>
-        <button type="submit" class="icon-button" aria-label="Close help" data-i18n-aria="closeHelp" data-i18n-title="closeHelp">×</button>
+        <button type="submit" class="icon-button" aria-label="Close rules" data-i18n-aria="closeHelp" data-i18n-title="closeHelp">×</button>
       </header>
       <div class="modal-content">
         <section>
-          <h3 data-i18n="sharedRule">One rule across every geometry</h3>
-          <p data-i18n="sharedRuleText">Each clue is an ordered list of colored runs. [Yellow 2] [Blue 3] means two connected yellow cells followed later—or immediately, because the colors differ—by three connected blue cells. Runs of the same color require at least one empty cell between them.</p>
+          <h3 data-i18n="sharedRule">Runs follow paths</h3>
+          <p data-i18n="sharedRuleText">Each path clue is an ordered sequence of filled runs. [Yellow 2] [Blue 3] means two yellow tiles followed later, or immediately because the colors differ, by three blue tiles. Matching colors need a blank tile between runs.</p>
         </section>
         <section>
-          <h3 data-i18n="pictureTypes">Two picture types</h3>
-          <p data-i18n="pictureTypesText">Color picture keeps different colors in the clue runs. Black & white picture converts every non-empty picture block into one filled block and uses standard number clues.</p>
+          <h3 data-i18n="pictureTypes">Binary and color rules</h3>
+          <p data-i18n="pictureTypesText">Binary mosaic uses one fill mark and standard number runs. Color mosaic keeps separate colored runs, so color changes can touch.</p>
         </section>
         <section>
-          <h3 data-i18n="timeRule">Time is a real clue direction</h3>
-          <p data-i18n="timeRuleText">In +Time modes, spatial clues apply inside each frame. Selecting one cell also reveals its ordered run through all frames. The timeline is therefore part of the logic, not a countdown.</p>
+          <h3 data-i18n="timeRule">Time is another path</h3>
+          <p data-i18n="timeRuleText">In time modes, each frame has space-path clues. Selecting a tile also shows its run through time, so the image evolves as part of the logic.</p>
         </section>
         <section>
-          <h3 data-i18n="threeDViews">Three complementary 3D views</h3>
-          <p data-i18n="threeDViewsText">Model gives context, Slice exposes internal layers, and Track isolates exactly one clue line. Use Draw, Empty, or Clean for editing; use Move / Orbit when you want camera control.</p>
+          <h3 data-i18n="threeDViews">Three ways through a lattice</h3>
+          <p data-i18n="threeDViewsText">Lattice gives the full object, Layer exposes a cross-section, and Path isolates one clue line. Use Fill, Blank, or Clear to mark tiles; use Navigate when you want camera control.</p>
         </section>
         <section>
-          <h3 data-i18n="shortcuts">Keyboard shortcuts</h3>
+          <h3 data-i18n="shortcuts">Keyboard</h3>
           <div class="shortcut-grid">
-            <kbd>1–5</kbd><span data-i18n="chooseColor">Choose color</span>
-            <kbd>X</kbd><span data-i18n="markEmpty">Mark empty</span>
-            <kbd>E</kbd><span data-i18n="clearCell">Clear to unknown</span>
-            <kbd>O</kbd><span data-i18n="orbitCamera">Move / orbit</span>
+            <kbd>1–5</kbd><span data-i18n="chooseColor">Choose tile color</span>
+            <kbd>X</kbd><span data-i18n="markEmpty">Mark blank</span>
+            <kbd>E</kbd><span data-i18n="clearCell">Clear mark</span>
+            <kbd>O</kbd><span data-i18n="orbitCamera">Navigate / orbit</span>
             <kbd>Ctrl Z/Y</kbd><span data-i18n="undoRedo">Undo / redo</span>
-            <kbd>[ ]</kbd><span data-i18n="changeFrame">Previous / next frame</span>
+            <kbd>[ ]</kbd><span data-i18n="changeFrame">Step time</span>
           </div>
         </section>
       </div>
-      <footer><button type="submit" class="primary" data-i18n="startPlaying">Start playing</button></footer>
+      <footer><button type="submit" class="primary" data-i18n="startPlaying">Enter mosaic</button></footer>
     </form>
   </dialog>
 
   <dialog id="completionDialog" class="modal completion-modal">
     <form method="dialog">
       <div class="completion-symbol" aria-hidden="true">✓</div>
-      <h2 data-i18n="completed">Puzzle completed</h2>
+      <h2 data-i18n="completed">Mosaic complete</h2>
       <p id="completionText"></p>
       <div id="completionParts" class="completion-parts"></div>
       <div class="completion-actions">
-        <button type="button" id="replayAnimationButton" data-i18n="replayAnimation">Replay animation</button>
-        <button type="button" id="nextPuzzleButton" class="primary" data-i18n="nextPuzzle">Next puzzle</button>
+        <button type="button" id="replayAnimationButton" data-i18n="replayAnimation">Replay time</button>
+        <button type="button" id="nextPuzzleButton" class="primary" data-i18n="nextPuzzle">Next mosaic</button>
         <button type="submit" data-i18n="close">Close</button>
       </div>
     </form>

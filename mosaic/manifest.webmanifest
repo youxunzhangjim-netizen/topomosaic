@@ -1,7 +1,7 @@
 {
-  "name": "TopoMosaic — Spatial & Temporal Logic",
+  "name": "TopoMosaic — Topological Mosaic Logic",
   "short_name": "TopoMosaic",
-  "description": "Colored ordered-track puzzles across tilings, 3D lattices, and time.",
+  "description": "Binary and color mosaic logic games across tilings, 3D lattices, and time paths.",
   "start_url": "./?dimension=2&time=1&lattice=square&puzzle=square-time-flower",
   "scope": "./",
   "display": "standalone",

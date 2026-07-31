@@ -516,14 +516,14 @@ export function buildLattice(kind, params = {}) {
 
 export const LATTICE_OPTIONS = Object.freeze({
   2: [
-    { id: 'square', label: 'Square cells' },
-    { id: 'hex', label: 'Hexagonal cells' },
-    { id: 'triangle', label: 'Triangular cells' },
+    { id: 'square', label: 'Square tiling' },
+    { id: 'hex', label: 'Hex tiling' },
+    { id: 'triangle', label: 'Triangle tiling' },
   ],
   3: [
-    { id: 'sc', label: 'Simple cubic cells' },
-    { id: 'fcc', label: 'FCC Voronoi cells' },
-    { id: 'bcc', label: 'BCC Voronoi cells' },
-    { id: 'hcp', label: 'HCP Voronoi cells' },
+    { id: 'sc', label: 'Cubic lattice' },
+    { id: 'fcc', label: 'FCC lattice' },
+    { id: 'bcc', label: 'BCC lattice' },
+    { id: 'hcp', label: 'HCP lattice' },
   ],
 });
