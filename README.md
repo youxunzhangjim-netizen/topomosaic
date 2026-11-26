@@ -32,7 +32,7 @@ The implementation is intentionally one app and one solver, not fourteen unrelat
 No installation is required for the 2D engine.
 
 ```bash
-cd topomosaic-v1
+cd topomosaic
 npm run serve
 ```
 
