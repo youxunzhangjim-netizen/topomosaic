@@ -1,6 +1,6 @@
-const CACHE = 'topomosaic-v1.0.10';
+const CACHE = 'topomosaic-v1.0.11';
 const CORE = [
-  './', './index.html', './styles.css', './app.js', './icon.svg', './manifest.webmanifest',
+  './', './index.html', './styles.css', './app.js', './report-issue.js', './icon.svg', './manifest.webmanifest',
   './core/clues.js', './core/lattices.js', './core/puzzle.js', './core/solver.js', './core/storage.js',
   './data/puzzles.js', './render/board2d.js', './render/board3d.js', './render/voronoi.js', './solver.worker.js',
 ];
